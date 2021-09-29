@@ -1,0 +1,14 @@
+<div>
+    Create
+    {{#each error}}
+    <h1>{{this.msg}}</h1>
+{{/each}}
+    <form method="POST" action="/account/created/newAccount">
+      <input type="text" id="login" class="fadeIn second" name="username" >
+      <input type="text" id="password" class="fadeIn third" name="password">
+      <input type="text" id="repassword" class="fadeIn third" name="repassword" >
+      <input type="text" id="nameApp" class="fadeIn second" name="nameApp" >
+      <button type="submit">Login</button>
+    </form>
+    
+</div>
