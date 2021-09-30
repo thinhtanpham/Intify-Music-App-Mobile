@@ -74,7 +74,7 @@ class UserName {
   }
 
   myList(req,res,next) {
-    User.findOne({username: req.user.name}, (err,user) =>{
+    User.findOne({username: req.user.username}, (err,user) =>{
       if(err) return res.json({
         status: 404,
         descp: err,

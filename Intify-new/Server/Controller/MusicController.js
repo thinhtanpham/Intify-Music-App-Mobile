@@ -95,18 +95,6 @@ class MusicController {
         console.log("Sent:", req.params.name);
       }
     });
-    // fs.access(img, fs.constants.F_OK, err => {
-    //   console.log(`${img} ${err ? "does not exits" : "exits"}`)
-    // })
-    // fs.readFile(img, function(err, content){
-    //   if(err){
-    //   res.writeHead(404, {"" : ""});
-    //   res.end("asdasda")}
-    //   else {
-    //     res.writeHead(200, {"":""})
-    //     res.end(content);
-    //     }
-    // })
   }
 }
 
