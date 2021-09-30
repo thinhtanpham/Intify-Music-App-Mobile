@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 
-const apiGet = 'http://localhost:3002'; //http://10.0.2.2:3002
+const apiGet = 'http://localhost:3002'; //http://10.0.2.2:3002  //http://10.0.0.100:3002
 
 const getListMusics = async () => {
   try {

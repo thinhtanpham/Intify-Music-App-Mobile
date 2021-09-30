@@ -23,9 +23,10 @@ export default class ListMusics extends Component {
   render() {
     const {navigation} = this.props   
     return (
-      <View style={{height: "100%", backgroundColor:"#243039"}}>
+      <View style={{flex: 1, backgroundColor:"#364855"}}>
+      <View style={styled.topArea}></View>
       <View style={styled.bottomArea}>
-      <Text>All List</Text>
+      <Text style={styled.allList}>All List</Text>
       <LinearGradient colors={['#FFFFFF15', '#FFFFFF01']} style={styled.scrollView}>
       <ScrollView >
         {this.state.musicsList.map((music, index) => <MusicItem navigation={navigation}  music={music} key={index}/>
@@ -40,16 +41,26 @@ export default class ListMusics extends Component {
 
 const styled = StyleSheet.create({
   bottomArea: {
-        top: 330,
-        marginLeft: "auto",
-        marginRight: "auto",
+        flex:6,
+        marginLeft: 5,
+        marginRight: 5,
         borderTopLeftRadius: 5,
         borderTopRightRadius: 5,
-    },
+  },
+  topArea:{
+    flex: 5,
+    //backgroundColor: "orange"
+  },
     scrollView: {
-      height: 475,
-      width: 400,
+      flex: 1,
+      marginLeft: "auto",
+      marginRight: "auto",
+      width: "99.5%",
       borderTopRightRadius: 5,
       borderTopLeftRadius: 5
+    },
+    allList:{
+      fontSize:30,
+      color: "white",
     }
 })
