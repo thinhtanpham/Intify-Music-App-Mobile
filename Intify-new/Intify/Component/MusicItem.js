@@ -11,8 +11,8 @@ export default function MusicItem (props) {
           <Image source={{uri: music.img}} style={style.img}></Image>
         </View>
         <View style={style.itemContent}>
-          <Text>{music.nameSong}</Text>
-          <Text>{music.nameArtist}</Text>
+          <Text style={style.titleNameSong}>{music.nameSong}</Text>
+          <Text style={style.titleNameArtist}>{music.nameArtist}</Text>
         </View>
       </View>
       </TouchableOpacity>
@@ -42,4 +42,12 @@ const style = StyleSheet.create({
     width: 80,
     borderRadius: 5,
   },
+  titleNameSong:{
+    color: "white",
+    fontSize: 20
+  },
+  titleNameArtist:{
+    color: "white",
+    fontSize: 15
+  }
 });
