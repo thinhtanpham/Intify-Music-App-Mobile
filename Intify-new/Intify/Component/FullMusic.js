@@ -1,15 +1,18 @@
-import React, {Component, useEffect} from 'react';
-import {Text, Button, View, Image, StyleSheet} from 'react-native';
+import React, {Component} from 'react';
+import {Text, Button, View, Image, StyleSheet, FlatList} from 'react-native';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {
-  faArrowLeft,
-  faUserCircle,
-  faCommentDots,
+  faStepBackward,
+  faStepForward,
+  faPauseCircle,
+  faPlayCircle,
   faEllipsisV,
   faHeart,
+  faVolumeUp
 } from '@fortawesome/free-solid-svg-icons';
 import Slider from '@react-native-community/slider';
-import { thisExpression } from '@babel/types';
+import {thisExpression} from '@babel/types';
+import systemSetting from 'react-native-system-setting';
 const Sound = require('react-native-sound');
 
 Sound.setCategory('Playback');
@@ -21,8 +24,11 @@ export default class FullMusic extends Component {
       music: this.props.route.params.music,
       newMusic: {},
       timeDurarion: 0,
-      currentTime: 0
+      currentTime: 0,
+      setTime: {},
+      status: true,
     };
+    // currentTimeNew=0
   }
 
   componentDidMount() {
@@ -38,31 +44,108 @@ export default class FullMusic extends Component {
     });
   }
 
+  componentWillUnmount() {
+    clearInterval(this.state.setTime);
+  }
+
+  convertTime(time) {
+    const mn = Math.floor(time / 60);
+    const sc = time % 60;
+    return mn + ':' + sc;
+  }
+  changedVolume(index) {
+    systemSetting
+      .getVolume()
+      .then(volume => systemSetting.setVolume(volume + index));
+  }
+
+  statusMusic(status, value) {
+    this.setState(
+      {
+        status: status,
+      },
+      () => {
+        const {newMusic} = this.state;
+        if (status) {
+          clearInterval(this.state.setTime);
+          newMusic.setCurrentTime(value);
+          newMusic.play();
+          this.state.setTime = setInterval(() => {
+            newMusic.getCurrentTime(second => {
+              this.setState({
+                currentTime: second,
+              });
+            });
+          }, 1000);
+        } else {
+          newMusic.pause();
+          clearInterval(this.state.setTime);
+          newMusic.setCurrentTime(value);
+          newMusic.getCurrentTime(second => {
+            this.setState({
+              currentTime: second,
+            });
+          });
+        }
+      },
+    );
+  }
+
   renderBotView(music) {
     return (
       <>
         <View style={styled.botPlay}>
-          <Button title="Play" onPress={() => {
-            this.state.newMusic._playing ? this.state.newMusic.stop() : this.state.newMusic.play()}
-          }/>
-          <Text>{this.state.timeDurarion}</Text>
-          <Text>{this.state.currentTime}</Text>
-          <Slider
-            style={{width: 200, height: 40}}
-            minimumValue={0}
-            maximumValue={this.state.timeDurarion}
-            minimumTrackTintColor="#FFFFFF"
-            maximumTrackTintColor="#000000"
-          />
+          <View style={{backgroundColor: "orange", flex: 2}}>
+
+          </View>
+
+          <View style={styled.sliderView}>
+            <Slider
+              style={styled.slider}
+              minimumValue={0}
+              maximumValue={this.state.timeDurarion}
+              value={this.state.currentTime}
+              onValueChange={value =>
+                this.statusMusic(this.state.status, value)
+              }
+              minimumTrackTintColor="#FFFFFF"
+              maximumTrackTintColor="#000000"
+            />
+            <View style={styled.timeView}>
+              <Text>{this.convertTime(parseInt(this.state.currentTime))}</Text>
+              <Text>{this.convertTime(parseInt(this.state.timeDurarion))}</Text>
+            </View>
+          </View>
+
+          {/* <Button title="+" onPress={() => this.changedVolume(0.1)} />
+          <Button title="-" onPress={() => this.changedVolume(-0.1)} /> */}
+          <View style={{flexDirection: 'row', flex: 2}}>
+            <FontAwesomeIcon icon={faStepBackward} style={styled.iconPlayPause}
+              size={30}/>
+            <FontAwesomeIcon
+              icon={this.state.newMusic._playing ? faPauseCircle : faPlayCircle}
+              onPress={() => {
+                this.state.newMusic._playing
+                  ? this.statusMusic(false, this.state.currentTime)
+                  : this.statusMusic(true, this.state.currentTime);
+              }}
+              style={styled.iconPlayPause}
+              size={40}
+            />
+            <FontAwesomeIcon icon={faStepForward} style={styled.iconPlayPause}
+              size={30} />
+          </View>
+
+          <View style={{flex: 1, backgroundColor:"orange"}}>
+
+          </View>
+          {/* <FontAwesomeIcon icon={faPlayCircle}/> */}
         </View>
-        <Button title="+" />
-        <Button title="-" />
       </>
     );
   }
 
   renderTopView(music) {
-    console.log(this.state.newMusic);
     return (
       <>
         <View style={styled.header}>
@@ -81,7 +164,6 @@ export default class FullMusic extends Component {
   }
 
   render() {
-    //const {music} = this.props.route.params;
     const {music} = this.state;
     return (
       <View style={styled.main}>
@@ -136,6 +218,12 @@ const styled = StyleSheet.create({
     marginTop: 30,
     color: '#C4C4C4',
   },
+  iconPlayPause: {
+    marginTop: 30,
+    color: '#C4C4C4',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+  },
   titleNameSong: {
     textAlign: 'center',
     color: 'white',
@@ -146,8 +234,20 @@ const styled = StyleSheet.create({
     color: 'white',
     fontSize: 15,
   },
+  timeView: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  slider: {
+    marginRight: 'auto',
+    marginLeft: 'auto',
+    width: 319,
+    height: 40,
+  },
+  sliderView:{
+    flex:1,
+  }
 });
-
 
 // import React, {useState, useEffect} from 'react';
 // import {Text, Button, View, Image, StyleSheet} from 'react-native';
@@ -178,7 +278,7 @@ const styled = StyleSheet.create({
 //   const [currentTime, setCurrentTime] = useState();
 
 //   // const useVCo= () => {
-   
+
 //   // }
 
 //   useEffect(() => {
@@ -302,4 +402,3 @@ const styled = StyleSheet.create({
 //     fontSize: 15,
 //   },
 // });
-

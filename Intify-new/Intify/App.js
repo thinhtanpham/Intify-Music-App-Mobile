@@ -6,31 +6,51 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import FullMusic from './Component/FullMusic';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faUserCircle} from '@fortawesome/free-solid-svg-icons';
+import LoginView from './Component/Login';
 
 const Stack = createNativeStackNavigator();
 
 function App() {
-return (
+  return (
     <NavigationContainer>
-    <StatusBar hidden={true} />
-    <Stack.Navigator initialRouteName="ListMuics">
+      <StatusBar hidden={true} />
+      <Stack.Navigator initialRouteName="ListMuics">
         <Stack.Screen
-        name="ListMuics"
-        component={ListMusics}
-        options={{ headerTitle: '', headerRight: () => <FontAwesomeIcon icon={faUserCircle}/> , headerStyle: {
-            backgroundColor: '#243039',
-          }}}
+          name="ListMuics"
+          component={ListMusics}
+          options={({navigation}) =>({
+            headerTitle: '',
+            headerRight: () => (
+              <FontAwesomeIcon
+                icon={faUserCircle}
+                onPress={() => navigation.navigate('Login')}
+              />
+            ),
+            headerStyle: {
+              backgroundColor: '#243039',
+            },
+          })}
         />
         <Stack.Screen
-        name="FullMusic"
-        component={FullMusic}
-        options={{headerTitle: '', headerRight: () => <FontAwesomeIcon icon={faUserCircle} />, headerStyle: {
-            backgroundColor: '#243039',
-          }}}
+          name="FullMusic"
+          component={FullMusic}
+          options={({navigation}) => ({
+            headerTitle: '',
+            headerRight: (navigation) => (
+              <FontAwesomeIcon
+                icon={faUserCircle}
+                onPress={() => navigation.navigate('Login')}
+              />
+            ),
+            headerStyle: {
+              backgroundColor: '#243039',
+            },
+          })}
         />
-    </Stack.Navigator>
+        <Stack.Screen name="Login" component={LoginView} />
+      </Stack.Navigator>
     </NavigationContainer>
-);
+  );
 }
 
 export default App;
@@ -38,7 +58,7 @@ export default App;
 const optionHeader = {};
 
 const styled = StyleSheet.create({
-header: {
+  header: {
     backgroundColor: '#243039',
-},
+  },
 });
