@@ -7,6 +7,7 @@ import FullMusic from './Component/FullMusic';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faUserCircle} from '@fortawesome/free-solid-svg-icons';
 import LoginView from './Component/Login';
+import UploadMusic from './Component/UploadMusic';
 
 const Stack = createNativeStackNavigator();
 
@@ -36,7 +37,7 @@ function App() {
           component={FullMusic}
           options={({navigation}) => ({
             headerTitle: '',
-            headerRight: (navigation) => (
+            headerRight: () => (
               <FontAwesomeIcon
                 icon={faUserCircle}
                 onPress={() => navigation.navigate('Login')}
@@ -48,6 +49,7 @@ function App() {
           })}
         />
         <Stack.Screen name="Login" component={LoginView} />
+        <Stack.Screen name="UploadMusic" component={UploadMusic} />
       </Stack.Navigator>
     </NavigationContainer>
   );

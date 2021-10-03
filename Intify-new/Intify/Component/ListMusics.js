@@ -4,6 +4,7 @@ import getListMusic from '../Server';
 import MusicItem from './MusicItem';
 import LinearGradient from 'react-native-linear-gradient';
 
+
 export default class ListMusics extends Component {
   constructor(props) {
     super(props);
@@ -64,3 +65,4 @@ const styled = StyleSheet.create({
       color: "white",
     }
 })
+

@@ -55,6 +55,7 @@ class MusicController {
           status: 404,
           descp: err,
         });
+        console.log(req.body)
       const newMusic = req.body;
       newMusic.idUser = user._id;
       newMusic.img =
@@ -64,6 +65,7 @@ class MusicController {
         "http://10.0.2.2:3002/" +
         req.files.mp3[0].path.split("\\").splice(1).join("/");
       const music = new Music(newMusic);
+      console.log("this is " +music)
       music
         .save()
         .then(
@@ -78,8 +80,9 @@ class MusicController {
             descp: error,
           })
         );
-    });
-  }
+    }
+    );
+}
 
   getFileImg(req, res, body) {
     const  options = {

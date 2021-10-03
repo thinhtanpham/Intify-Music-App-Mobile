@@ -10,8 +10,10 @@ const authenticateToken = require('../config/authenticate')
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     if (isImg(file.fieldname)) {
+      console.log(file)
       cb(null, "public/uploads/imgSong");
     } else if (isSong(file.fieldname)) {
+      console.log(file)
       cb(null, "public/uploads/mp3");
     }
   },
