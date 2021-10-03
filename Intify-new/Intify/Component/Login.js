@@ -8,6 +8,7 @@ import {
   TouchableHighlight,
   Image,
   Alert,
+  AsyncStorage,
 } from 'react-native';
 
 export default class LoginView extends Component {
@@ -19,19 +20,27 @@ export default class LoginView extends Component {
     };
   }
 
-  async Login(){
-      const login = await fetch("http://10.0.2.2:5000/account/checkLogin", {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(this.state.email, this.state.password)
-      }).then(response => console.log(response.json))
-    //   const jsLogin= login.json
-    //   jsLogin
+  async Login() {
+    try {
+      const response = await fetch('http://10.0.2.2:5000/account/checkLogin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: this.state.email,
+          password: this.state.password,
+        }),
+      });
+      const json = await response.json();
+      console.log(json);
+    } catch (error) {
+      console.error(error);
+    }
   }
-  
+
   render() {
+    const {navigation} = this.props  
     return (
       <View style={styles.container}>
         <View style={styles.inputContainer}>
@@ -60,7 +69,7 @@ export default class LoginView extends Component {
           <Text style={styles.loginText}>Login</Text>
         </TouchableHighlight>
 
-        {/* <TouchableHighlight
+        <TouchableHighlight
           style={styles.buttonContainer}
           onPress={() => this.onClickListener('restore_password')}>
           <Text>Forgot your password?</Text>
@@ -70,7 +79,14 @@ export default class LoginView extends Component {
           style={styles.buttonContainer}
           onPress={() => this.onClickListener('register')}>
           <Text>Register</Text>
-        </TouchableHighlight> */}
+        </TouchableHighlight>
+
+        <TouchableHighlight
+          style={styles.buttonContainer}
+          onPress={() => navigation.navigate('UploadMusic')}>
+          <Text>Upload</Text>
+        </TouchableHighlight>
+
       </View>
     );
   }
