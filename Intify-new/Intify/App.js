@@ -7,8 +7,9 @@ import FullMusic from './Component/FullMusic';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faUserCircle} from '@fortawesome/free-solid-svg-icons';
 import LoginView from './Component/Login';
-import UploadMusic from './Component/UploadMusic';
+import UploadMusic from './Component/UserComponent/UploadMusic';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import User from './Component/User';
 
 const Stack = createNativeStackNavigator();
 
@@ -28,7 +29,7 @@ function App() {
                 onPress={async () => {
                   try {
                     const asAccessTk = await AsyncStorage.getItem('@storage_accessToken');
-                    (asAccessTk ? navigation.navigate('UploadMusic') : navigation.navigate('Login') )
+                    (asAccessTk ? navigation.navigate('User') : navigation.navigate('Login') )
                   } catch (error) {
                     console.log(error)
                   }
@@ -51,7 +52,7 @@ function App() {
               onPress={async () => {
                 try {
                   const asAccessTk = await AsyncStorage.getItem('@storage_accessToken');
-                  (asAccessTk ? navigation.navigate('UploadMusic') : navigation.navigate('Login') )
+                  (asAccessTk ? navigation.navigate('User') : navigation.navigate('Login') )
                 } catch (error) {
                   console.log(error)
                 }
@@ -64,7 +65,7 @@ function App() {
           })}
         />
         <Stack.Screen name="Login" component={LoginView} />
-        <Stack.Screen name="UploadMusic" component={UploadMusic} />
+        <Stack.Screen name="User" component={User}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

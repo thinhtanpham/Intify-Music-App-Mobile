@@ -109,12 +109,6 @@ export default class LoginView extends Component {
           onPress={() => this.onClickListener('register')}>
           <Text>Register</Text>
         </TouchableHighlight>
-
-        <TouchableHighlight
-          style={styles.buttonContainer}
-          onPress={() => navigation.navigate('UploadMusic')}>
-          <Text>Upload</Text>
-        </TouchableHighlight>
       </View>
     );
   }

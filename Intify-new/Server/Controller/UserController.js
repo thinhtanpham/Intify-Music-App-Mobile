@@ -8,34 +8,6 @@ const Music = require("../Model/Music");
 
 class UserName {
 
-  // formLogin(req, res, next) {
-  //   res.render("login");
-  // }
-
-  // formCreate(req, res, next) {
-  //   res.render("create");
-  // }
-  
-
-  // login(req, res, next) {
-  //   const {username, password} = req.body
-  //   User.findOne({username: username},(err, user) =>{
-  //     if(err) return res.json({message:{msgBody: err, msgError:true}})
-  //     if(!user) return res.status(500).json({ message:{msgBody: "username hoac password khong dung", msgError:true}})
-  //     bcrypt.compare(password, user.password, (err, isMatch)=>{
-  //       if(err) return res.json({message:{msgBody: err, msgError:true}})
-  //       if(isMatch) {
-  //         const user = {name: username}
-  //         const accessToken = generateToken(user)
-  //         console.log(accessToken)
-  //         return res.status(200).json({ message:{msgBody: "Dang nhap thanh cong",accessToken: accessToken, msgError:false}})
-  //       }
-  //       else return res.status(500).json({ message:{msgBody: "username hoac password khong dung", msgError:true}})
-  //     }
-  //   )
-  //   // passport.authenticate('local', {session: false})
-  // })}
-
     create(req, res, next) { 
     const { username, password, repassword, nameApp } = req.body;
     console.log("dang dang ky")

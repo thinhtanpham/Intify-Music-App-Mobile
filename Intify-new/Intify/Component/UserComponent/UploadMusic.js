@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import refreshToken from '../refreshToken';
+import refreshToken from '../../refreshToken';
 
 const UploadMusic = () => {
   const [imgUpload, setImgUpload] = useState(null);
