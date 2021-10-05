@@ -8,6 +8,7 @@ import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faUserCircle} from '@fortawesome/free-solid-svg-icons';
 import LoginView from './Component/Login';
 import UploadMusic from './Component/UploadMusic';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Stack = createNativeStackNavigator();
 
@@ -19,12 +20,19 @@ function App() {
         <Stack.Screen
           name="ListMuics"
           component={ListMusics}
-          options={({navigation}) =>({
+          options={({navigation}) => ({
             headerTitle: '',
             headerRight: () => (
               <FontAwesomeIcon
                 icon={faUserCircle}
-                onPress={() => navigation.navigate('Login')}
+                onPress={async () => {
+                  try {
+                    const asAccessTk = await AsyncStorage.getItem('@storage_accessToken');
+                    (asAccessTk ? navigation.navigate('UploadMusic') : navigation.navigate('Login') )
+                  } catch (error) {
+                    console.log(error)
+                  }
+                }}
               />
             ),
             headerStyle: {
@@ -39,9 +47,16 @@ function App() {
             headerTitle: '',
             headerRight: () => (
               <FontAwesomeIcon
-                icon={faUserCircle}
-                onPress={() => navigation.navigate('Login')}
-              />
+              icon={faUserCircle}
+              onPress={async () => {
+                try {
+                  const asAccessTk = await AsyncStorage.getItem('@storage_accessToken');
+                  (asAccessTk ? navigation.navigate('UploadMusic') : navigation.navigate('Login') )
+                } catch (error) {
+                  console.log(error)
+                }
+              }}
+            />
             ),
             headerStyle: {
               backgroundColor: '#243039',
@@ -56,8 +71,6 @@ function App() {
 }
 
 export default App;
-
-const optionHeader = {};
 
 const styled = StyleSheet.create({
   header: {
