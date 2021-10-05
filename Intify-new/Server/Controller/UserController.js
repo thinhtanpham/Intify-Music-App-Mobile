@@ -37,7 +37,6 @@ class UserName {
   // })}
 
     create(req, res, next) { 
-    console.log(req.body)
     const { username, password, repassword, nameApp } = req.body;
     console.log("dang dang ky")
     User.findOne({ username: username })
@@ -101,9 +100,9 @@ class UserName {
   
 }
 
-function generateToken(user) {
-      return jwt.sign(user, 'bear.', {expiresIn:'20s'})
-    }
+// function generateToken(user) {
+//       return jwt.sign(user, 'bear.', {expiresIn:'20s'})
+//     }
 
 
 module.exports = new UserName();

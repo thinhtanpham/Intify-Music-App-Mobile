@@ -1,70 +1,159 @@
 import React, {useState} from 'react';
-// Import core components
-import {StyleSheet, Text, View, TouchableOpacity} from 'react-native';
-
-// Import Document Picker
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  TextInput,
+  TouchableHighlight,
+} from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import refreshToken from '../refreshToken';
 
 const UploadMusic = () => {
   const [imgUpload, setImgUpload] = useState(null);
   const [mp3Upload, setMp3Upload] = useState(null);
+  const [nameSong, setNameSong] = useState('');
+  const [nameArtist, setNameArtist] = useState('');
 
   const uploadImage = async () => {
-    if (imgUpload != null && mp3Upload !=null) {
+    if (imgUpload != null && mp3Upload != null) {
       const data = new FormData();
-      data.append('nameSong', "Chung ta khong thuoc ve nhau")
-      data.append('nameArtist', "asdasdas")
+      data.append('nameSong', nameSong.nameSong);
+      data.append('nameArtist', nameArtist.nameArtist );
       data.append('img', {
-        'uri': imgUpload[0].uri,
-        'type': imgUpload[0].type,
-        'name': imgUpload[0].name
+        uri: imgUpload[0].uri,
+        type: imgUpload[0].type,
+        name: imgUpload[0].name,
       });
-      data.append('mp3',{
-        'uri': mp3Upload[0].uri,
-        'type': mp3Upload[0].type,
-        'name': mp3Upload[0].name
+      data.append('mp3', {
+        uri: mp3Upload[0].uri,
+        type: mp3Upload[0].type,
+        name: mp3Upload[0].name,
       });
       try {
-        const res= await fetch('http://10.0.2.2:3002/add/newSong', {
-          method: 'post',
-          headers: {
-            'Accept': 'application/json',
-            "type": "formData",
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJha2FiYWthIiwiaWF0IjoxNjMzMjM2MjIzLCJleHAiOjE2MzMyMzY4MjN9.V3MVdPjPXvlSUfAVBmgsBwMyZJ5K_uby8kQpgAAmQSU',
-          },
-          body: data,
+        const asAccessTk = await AsyncStorage.getItem('@storage_accessToken');
+        await fetch('http://10.0.2.2:3002/add/newSong', {
+        method: 'post',
+        headers: {
+          Accept: 'application/json',
+          type: 'formData',
+          authorization: 'Bearer ' + asAccessTk,
+        },
+        body: data,
+      })
+        .then(async response =>  {
+        console.log("res1 :" + await response)
         })
-        console.log(await res.json())
+        .catch(async () => { 
+          console.log("token het han")
+          refreshToken()
+          console.log("Dang lay lai token")
+          try {
+            const asAccessTk = await AsyncStorage.getItem('@storage_accessToken');
+            await fetch('http://10.0.2.2:3002/add/newSong', {
+            method: 'post',
+            headers: {
+              Accept: 'application/json',
+              type: 'formData',
+              authorization: 'Bearer ' + asAccessTk,
+            },
+            body: data,
+          })
+          .then(async response =>  {
+            console.log("res2 :" + await response)
+          })}
+          catch(error){
+            console.log(error)
+          }
+        }
+        )
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
-  }}
+      // const newaccess = refreshToken();
+      // AsyncStorage.removeItem('@storage_accessToken').done()
+      // AsyncStorage.setItem('@storage_accessToken', newaccess).done()
+      // try {
+      //   const res = await fetch('http://10.0.2.2:3002/add/newSong', {
+      //     method: 'post',
+      //     headers: {
+      //       Accept: 'application/json',
+      //       type: "formData",
+      //       Authorization:
+      //         'Bearer ' +
+      //         (await AsyncStorage.getItem('@storage_accessToken')),
+      //     },
+      //     body: data,
+      //   });
+      //   console.log(await res.json());
+      // } catch (error) {
+      //   console.log(error);
+      // }
+    }
+  };
+
+  const Logout = async () => {
+    try {
+      const response = await fetch('http://10.0.2.2:5000/logout', {
+        method: 'post',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          token: await AsyncStorage.getItem('@storage_refreshToken'),
+        }),
+      });
+      await AsyncStorage.removeItem('@storage_refreshToken');
+      await AsyncStorage.removeItem('@storage_accessToken');
+      console.log(await AsyncStorage.getItem('@storage_accessToken'));
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const selectImage = async () => {
     try {
       const res = await DocumentPicker.pick({
         type: DocumentPicker.types.images,
       });
-      console.log('res : ' + JSON.stringify(res));
       setImgUpload(res);
     } catch (err) {
-      console.log(err)
-      }
+      console.log(err);
     }
+  };
 
   const selectMp3 = async () => {
     try {
       const res = await DocumentPicker.pick({
         type: DocumentPicker.types.audio,
       });
-      console.log('res : ' + JSON.stringify(res));
       setMp3Upload(res);
     } catch (err) {
-    console.log(err)
+      console.log(err);
     }
   };
   return (
     <View style={styles.mainBody}>
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.inputs}
+          placeholder="name-song"
+          underlineColorAndroid="transparent"
+          onChangeText={nameSong => setNameSong({nameSong})}
+        />
+      </View>
+
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.inputs}
+          placeholder="name-artist"
+          underlineColorAndroid="transparent"
+          onChangeText={nameArtist => setNameArtist({nameArtist})}
+        />
+      </View>
+
       <TouchableOpacity
         style={styles.buttonStyle}
         activeOpacity={0.5}
@@ -83,6 +172,11 @@ const UploadMusic = () => {
         onPress={uploadImage}>
         <Text style={styles.buttonTextStyle}>Upload File</Text>
       </TouchableOpacity>
+      <TouchableHighlight
+        style={styles.buttonContainer}
+        onPress={() => Logout()}>
+        <Text>Logout</Text>
+      </TouchableHighlight>
     </View>
   );
 };
@@ -117,6 +211,29 @@ const styles = StyleSheet.create({
     marginLeft: 35,
     marginRight: 35,
     textAlign: 'center',
+  },
+  inputContainer: {
+    borderBottomColor: '#F5FCFF',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 30,
+    borderBottomWidth: 1,
+    width: 250,
+    height: 45,
+    marginBottom: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  inputs: {
+    height: 45,
+    marginLeft: 16,
+    borderBottomColor: '#FFFFFF',
+    flex: 1,
+  },
+  inputIcon: {
+    width: 30,
+    height: 30,
+    marginLeft: 15,
+    justifyContent: 'center',
   },
 });
 

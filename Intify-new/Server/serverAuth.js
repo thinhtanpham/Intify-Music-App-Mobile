@@ -9,6 +9,8 @@ const session = require("express-session");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const authenticateToken = require("./config/authenticate");
+const RefToken = require("./Model/RefToken");
+const { deleteOne } = require("./Model/User");
 
 dbConnect.Connect();
 app.use(cors());
@@ -18,8 +20,6 @@ app.use(
     extended: true,
   })
 );
-
-const refreshTokens = [];
 
 app.post("/account/checkLogin", (req, res, next) => {
   const { username, password } = req.body;
@@ -35,11 +35,25 @@ app.post("/account/checkLogin", (req, res, next) => {
     bcrypt.compare(password, user.password, (err, isMatch) => {
       if (err) return res.json({ message: { msgBody: err, msgError: true } });
       if (isMatch) {
-        const user = { username: username };
-        const accessToken = generateToken(user);
-        const refreshToken = jwt.sign(user, "refresh-bear.");
-        refreshTokens.push(refreshToken);
-        console.log(accessToken);
+        const userLog = { username: username };
+        const accessToken = generateToken(userLog);
+        const refreshToken = jwt.sign(userLog, "refresh-bear.");
+        const ref= {
+          idUser: user._id,
+          refToken: refreshToken
+        }
+        RefToken.findOne({idUser: user._id})
+        .then((refToken) =>{ 
+          if(refToken) RefToken.updateOne({idUser: user._id}, ref)
+          else {
+            const refTokenDB = new RefToken({
+              idUser: user._id,
+              refToken: refreshToken,
+            });
+            refTokenDB.save().catch((error) => console.log(error));
+          }
+        })
+        .catch(error => console.log(error))
         return res.status(200).json({
           message: {
             msgBody: "Dang nhap thanh cong",
@@ -56,26 +70,35 @@ app.post("/account/checkLogin", (req, res, next) => {
           },
         });
     });
-    // passport.authenticate('local', {session: false})
   });
 });
 
 app.post("/logout", (req, res) => {
   const refreshToken = req.body.token;
-  refreshTokens = refreshTokens.filter((refToken) => refToken !== refreshToken);
-  res.sendStatus(200);
+  RefToken.findOneAndDelete({refToken: refreshToken})
+  .then(() => res.status(200).json({
+    "msg":"Logout thanh cong"
+  }))
+  .catch(() => res.status(400).json({
+    "msg":"Loi"
+  }))
 });
 
 app.post("/refreshToken", (req, res) => {
   const refreshToken = req.body.token;
+  console.log(refreshToken)
   if (!refreshToken) res.sendStatus(401);
-  if (!refreshTokens.includes(refreshToken)) res.sendStatus(403);
-  jwt.verify(refreshToken, "refresh-bear.", (err, user) => {
-    if (err) return res.sendStatus(403);
-    const newuser = { name: user.name };
-    const accessToken = generateToken(newuser);
-    res.json({ accessToken: accessToken });
-  });
+  RefToken.findOne({refToken: refreshToken}).then((reftoken) => {
+    jwt.verify(reftoken.refToken, "refresh-bear.", (err, user) => {
+      if (err) return res.sendStatus(403);
+      const newuser = { username: user.username };
+      const accessToken = generateToken(newuser);
+      res.json({ accessToken: accessToken });
+    });
+  })
+  .catch(() => res.status(403).json({
+    message: "Don't have refToken"
+  }))
 });
 
 function generateToken(user) {

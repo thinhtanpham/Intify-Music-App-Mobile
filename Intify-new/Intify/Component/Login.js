@@ -8,8 +8,8 @@ import {
   TouchableHighlight,
   Image,
   Alert,
-  AsyncStorage,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default class LoginView extends Component {
   constructor(props) {
@@ -33,14 +33,37 @@ export default class LoginView extends Component {
         }),
       });
       const json = await response.json();
-      console.log(json);
+      try {
+        await AsyncStorage.setItem('@storage_accessToken', json.message.accessToken)
+        await AsyncStorage.setItem('@storage_refreshToken', json.message.refreshToken)
+      } catch (error) {
+      console.log(error);
+      }
     } catch (error) {
       console.error(error);
     }
   }
 
+  async Logout() {
+    try {
+      const response = await fetch('http://10.0.2.2:5000/logout', {
+        method: 'post',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          token: await AsyncStorage.getItem('@storage_refreshToken')
+        }),
+      });  
+      await AsyncStorage.removeItem('@storage_refreshToken')
+      await AsyncStorage.removeItem('@storage_accessToken')
+      } catch (error) {
+      console.log(error);
+      }
+    }
+
   render() {
-    const {navigation} = this.props  
+    const {navigation} = this.props;
     return (
       <View style={styles.container}>
         <View style={styles.inputContainer}>
@@ -71,6 +94,12 @@ export default class LoginView extends Component {
 
         <TouchableHighlight
           style={styles.buttonContainer}
+          onPress={() => this.Logout()}>
+          <Text>Logout</Text>
+        </TouchableHighlight>
+
+        <TouchableHighlight
+          style={styles.buttonContainer}
           onPress={() => this.onClickListener('restore_password')}>
           <Text>Forgot your password?</Text>
         </TouchableHighlight>
@@ -86,7 +115,6 @@ export default class LoginView extends Component {
           onPress={() => navigation.navigate('UploadMusic')}>
           <Text>Upload</Text>
         </TouchableHighlight>
-
       </View>
     );
   }

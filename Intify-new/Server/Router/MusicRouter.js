@@ -8,17 +8,16 @@ const jwt = require('jsonwebtoken')
 const authenticateToken = require('../config/authenticate')
 
 const storage = multer.diskStorage({
+  
   destination: function (req, file, cb) {
     if (isImg(file.fieldname)) {
-      console.log(file)
       cb(null, "public/uploads/imgSong");
     } else if (isSong(file.fieldname)) {
-      console.log(file)
       cb(null, "public/uploads/mp3");
     }
   },
   filename: function (req, file, cb) {
-    const fileType = file.originalname.split(".");
+    //const fileType = file.originalname.split(".");
     if (isImg(file.fieldname)) {
       cb(null, req.body.nameSong.split(' ').join('-') + "-" + req.body.nameArtist.split(' ').join('-') +".jpg");
     } else if (isSong(file.fieldname)) {
