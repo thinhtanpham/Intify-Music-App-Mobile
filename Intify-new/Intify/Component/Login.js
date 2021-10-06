@@ -92,11 +92,7 @@ export default class LoginView extends Component {
           <Text style={styles.loginText}>Login</Text>
         </TouchableHighlight>
 
-        <TouchableHighlight
-          style={styles.buttonContainer}
-          onPress={() => this.Logout()}>
-          <Text>Logout</Text>
-        </TouchableHighlight>
+        
 
         <TouchableHighlight
           style={styles.buttonContainer}

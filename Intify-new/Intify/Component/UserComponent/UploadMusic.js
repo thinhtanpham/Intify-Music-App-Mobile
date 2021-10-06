@@ -72,25 +72,6 @@ const UploadMusic = () => {
       } catch (error) {
         console.log(error);
       }
-      // const newaccess = refreshToken();
-      // AsyncStorage.removeItem('@storage_accessToken').done()
-      // AsyncStorage.setItem('@storage_accessToken', newaccess).done()
-      // try {
-      //   const res = await fetch('http://10.0.2.2:3002/add/newSong', {
-      //     method: 'post',
-      //     headers: {
-      //       Accept: 'application/json',
-      //       type: "formData",
-      //       Authorization:
-      //         'Bearer ' +
-      //         (await AsyncStorage.getItem('@storage_accessToken')),
-      //     },
-      //     body: data,
-      //   });
-      //   console.log(await res.json());
-      // } catch (error) {
-      //   console.log(error);
-      // }
     }
   };
 

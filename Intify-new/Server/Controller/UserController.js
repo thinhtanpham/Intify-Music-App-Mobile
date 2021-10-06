@@ -44,6 +44,23 @@ class UserName {
     }))
   }
 
+  userInfo(req, res, next){
+    User.findOne({username: req.user.username}, (err,user) =>{
+      if(err) return res.status(404).json({
+        descp: err,
+      })
+      if(user) return res.status(200).json({
+        user: {
+          username: user.username,
+          nameApp: user.nameApp
+        }
+      })
+      else return res.status(500).json({
+        user: null
+      })
+    })
+  }
+
   myList(req,res,next) {
     User.findOne({username: req.user.username}, (err,user) =>{
       if(err) return res.json({
@@ -71,10 +88,5 @@ class UserName {
 
   
 }
-
-// function generateToken(user) {
-//       return jwt.sign(user, 'bear.', {expiresIn:'20s'})
-//     }
-
 
 module.exports = new UserName();

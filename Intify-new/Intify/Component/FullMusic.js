@@ -11,7 +11,6 @@ import {
   faVolumeUp
 } from '@fortawesome/free-solid-svg-icons';
 import Slider from '@react-native-community/slider';
-import {thisExpression} from '@babel/types';
 import systemSetting from 'react-native-system-setting';
 const Sound = require('react-native-sound');
 
@@ -21,14 +20,13 @@ export default class FullMusic extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      music: this.props.route.params.music,
+      music: this.props.route.params.music || this.props.music,
       newMusic: {},
       timeDurarion: 0,
       currentTime: 0,
       setTime: {},
       status: true,
     };
-    // currentTimeNew=0
   }
 
   componentDidMount() {
@@ -60,8 +58,7 @@ export default class FullMusic extends Component {
   }
 
   statusMusic(status, value) {
-    this.setState(
-      {
+    this.setState({
         status: status,
       },
       () => {
@@ -121,7 +118,8 @@ export default class FullMusic extends Component {
           <Button title="-" onPress={() => this.changedVolume(-0.1)} /> */}
           <View style={{flexDirection: 'row', flex: 2}}>
             <FontAwesomeIcon icon={faStepBackward} style={styled.iconPlayPause}
-              size={30}/>
+              size={30}
+              />
             <FontAwesomeIcon
               icon={this.state.newMusic._playing ? faPauseCircle : faPlayCircle}
               onPress={() => {
@@ -133,7 +131,8 @@ export default class FullMusic extends Component {
               size={40}
             />
             <FontAwesomeIcon icon={faStepForward} style={styled.iconPlayPause}
-              size={30} />
+              size={30}
+              />
           </View>
 
           <View style={{flex: 1, backgroundColor:"orange"}}>

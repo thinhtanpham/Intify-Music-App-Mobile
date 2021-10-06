@@ -3,6 +3,7 @@ import {View, ScrollView, StyleSheet, Text, Image} from 'react-native';
 import getListMusic from '../Server';
 import MusicItem from './MusicItem';
 import LinearGradient from 'react-native-linear-gradient';
+import FullMusic from './FullMusic';
 
 
 export default class ListMusics extends Component {
@@ -21,6 +22,7 @@ export default class ListMusics extends Component {
         .catch(err => consoloe.log(err))
     }
 
+
   render() {
     const {navigation} = this.props   
     return (
@@ -30,7 +32,7 @@ export default class ListMusics extends Component {
       <Text style={styled.allList}>All List</Text>
       <LinearGradient colors={['#FFFFFF15', '#FFFFFF01']} style={styled.scrollView}>
       <ScrollView >
-        {this.state.musicsList.map((music, index) => <MusicItem navigation={navigation}  music={music} key={index}/>
+        {this.state.musicsList.map((music, index) => <MusicItem navigation={navigation} music={music} key={index}/>
         )}
       </ScrollView>
       </LinearGradient>

@@ -5,7 +5,9 @@ import {Image, Text, View, StyleSheet, Button, TouchableOpacity} from 'react-nat
 export default function MusicItem (props) {
     const {music, navigation} = props;
     return (
-      <TouchableOpacity onPress={()=> navigation.navigate('FullMusic', {music: music})} >
+      <TouchableOpacity onPress={()=> navigation.navigate('FullMusic', {
+        music: music 
+        })} >
       <View style={style.itemView} >
         <View>
           <Image source={{uri: music.img}} style={style.img}></Image>

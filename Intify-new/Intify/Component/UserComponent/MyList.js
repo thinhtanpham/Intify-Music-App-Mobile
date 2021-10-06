@@ -27,9 +27,7 @@ export default class MyList extends Component {
             refreshToken();
             console.log('Dang lay lai token');
             try {
-              const asAccessTk = await AsyncStorage.getItem(
-                '@storage_accessToken',
-              );
+              asAccessTk = await AsyncStorage.getItem('@storage_accessToken');
               await fetch('http://10.0.2.2:3002/account/mylist', {
                 method: 'get',
                 headers: {
