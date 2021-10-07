@@ -1,5 +1,7 @@
 import React, {Component} from 'react';
 import {Text, Button, View, Image, StyleSheet, FlatList} from 'react-native';
+import Modal from 'react-native-modal';
+import {Overlay} from 'react-native-elements';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {
   faStepBackward,
@@ -8,7 +10,7 @@ import {
   faPlayCircle,
   faEllipsisV,
   faHeart,
-  faVolumeUp
+  faVolumeUp,
 } from '@fortawesome/free-solid-svg-icons';
 import Slider from '@react-native-community/slider';
 import systemSetting from 'react-native-system-setting';
@@ -26,10 +28,12 @@ export default class FullMusic extends Component {
       currentTime: 0,
       setTime: {},
       status: true,
+      visible: false,
     };
   }
 
   componentDidMount() {
+    
     const newMusic = new Sound(this.state.music.mp3, Sound.MAIN_BUNDLE, err => {
       if (err) {
         consoloe.log(err);
@@ -51,14 +55,14 @@ export default class FullMusic extends Component {
     const sc = time % 60;
     return mn + ':' + sc;
   }
+
   changedVolume(index) {
-    systemSetting
-      .getVolume()
-      .then(volume => systemSetting.setVolume(volume + index));
+    systemSetting.setVolume(index);
   }
 
   statusMusic(status, value) {
-    this.setState({
+    this.setState(
+      {
         status: status,
       },
       () => {
@@ -92,8 +96,53 @@ export default class FullMusic extends Component {
     return (
       <>
         <View style={styled.botPlay}>
-          <View style={{backgroundColor: "orange", flex: 2}}>
-
+          <View style={{flex: 2, flexDirection: 'row'}}>
+            <View style={{flex: 1, flexDirection: 'row', marginLeft: 50}}>
+              <FontAwesomeIcon
+                icon={faVolumeUp}
+                size={20}
+                onPress={() => {
+                  this.setState({
+                    visible: !this.state.visible,
+                  });
+                  setTimeout(() => {
+                    this.setState({
+                      visible: !this.state.visible,
+                    });
+                  }, 4000);
+                }}
+                style={styled.iconVolume}
+              />
+              {this.state.visible ? (
+                <View
+                  style={styled.modal}
+                  animationType={'fade'}
+                  transparent={true}
+                  visible={this.state.visible}
+                >
+                  <View
+                    style={{
+                      backgroundColor: 'white',
+                      height: 30,
+                      width: 175,
+                      borderRadius: 15,
+                    }}>
+                    <Slider
+                      style={styled.sliderVolume}
+                      minimumValue={0}
+                      maximumValue={1}
+                      value={0.5}
+                      step={0.1}
+                      onValueChange={value => this.changedVolume(value)}
+                      minimumTrackTintColor="#243039"
+                      maximumTrackTintColor="#000000"
+                    />
+                  </View>
+                </View>
+              ) : (
+                <></>
+              )}
+            </View>
           </View>
 
           <View style={styled.sliderView}>
@@ -114,12 +163,13 @@ export default class FullMusic extends Component {
             </View>
           </View>
 
-          {/* <Button title="+" onPress={() => this.changedVolume(0.1)} />
-          <Button title="-" onPress={() => this.changedVolume(-0.1)} /> */}
+         
           <View style={{flexDirection: 'row', flex: 2}}>
-            <FontAwesomeIcon icon={faStepBackward} style={styled.iconPlayPause}
+            <FontAwesomeIcon
+              icon={faStepBackward}
+              style={styled.iconPlayPause}
               size={30}
-              />
+            />
             <FontAwesomeIcon
               icon={this.state.newMusic._playing ? faPauseCircle : faPlayCircle}
               onPress={() => {
@@ -130,15 +180,13 @@ export default class FullMusic extends Component {
               style={styled.iconPlayPause}
               size={40}
             />
-            <FontAwesomeIcon icon={faStepForward} style={styled.iconPlayPause}
+            <FontAwesomeIcon
+              icon={faStepForward}
+              style={styled.iconPlayPause}
               size={30}
-              />
+            />
           </View>
-
-          <View style={{flex: 1, backgroundColor:"orange"}}>
-
-          </View>
-          {/* <FontAwesomeIcon icon={faPlayCircle}/> */}
+          <View style={{flex: 1, backgroundColor: 'orange'}}></View>
         </View>
       </>
     );
@@ -223,6 +271,12 @@ const styled = StyleSheet.create({
     marginLeft: 'auto',
     marginRight: 'auto',
   },
+  iconVolume:{
+    marginTop: 30,
+    color: '#C4C4C4',
+    marginTop: 'auto',
+    marginBottom: 'auto',
+  },
   titleNameSong: {
     textAlign: 'center',
     color: 'white',
@@ -243,161 +297,22 @@ const styled = StyleSheet.create({
     width: 319,
     height: 40,
   },
-  sliderView:{
-    flex:1,
-  }
+  sliderVolume: {
+    marginRight: 'auto',
+    marginLeft: 'auto',
+    marginTop: 'auto',
+    marginBottom: 'auto',
+    width: 150,
+    height: 40,
+  },
+  sliderView: {
+    flex: 1,
+  },
+  modal: {
+    marginTop: 'auto',
+    marginBottom: 'auto',
+    marginLeft: 10,
+    height: 30,
+    margin: 0,
+  },
 });
-
-// import React, {useState, useEffect} from 'react';
-// import {Text, Button, View, Image, StyleSheet} from 'react-native';
-// import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-// import {
-//   faArrowLeft,
-//   faUserCircle,
-//   faCommentDots,
-//   faEllipsisV,
-//   faHeart,
-// } from '@fortawesome/free-solid-svg-icons';
-// import Slider from '@react-native-community/slider';
-// const Sound = require('react-native-sound');
-
-// Sound.setCategory('Playback');
-
-// export default function FullMusic(props) {
-//   // const state = {
-//   //  music: this.props.route.params.music,
-//   //   newMusic: {},
-//   //   timeDurarion: 0,
-//   //   currentTime: 0
-//   // }
-
-//   const [music, setMusic] = useState(props.route.params.music);
-//   const [newMusic, setNewMusic] = useState();
-//   const [timeDurarion, setTimeDuration] = useState();
-//   const [currentTime, setCurrentTime] = useState();
-
-//   // const useVCo= () => {
-
-//   // }
-
-//   useEffect(() => {
-//     const nMusic = new Sound(music.mp3, Sound.MAIN_BUNDLE, err => {
-//       if (err) {
-//         consoloe.log(err);
-//         return err;
-//       }
-//     })
-//     setNewMusic(nMusic)
-//     console.log(newMusic)
-//     setTimeDuration(newMusic)
-//   }, [])
-
-//   const renderBotView = (music) => {
-//     return (
-//       <>
-//         <View style={styled.botPlay}>
-//           <Button
-//             title="Play"
-//             onPress={() => {
-//               newMusic._playing
-//                 ? newMusic.stop()
-//                 : newMusic.play();
-//             }}
-//           />
-//           <Text>{timeDurarion}</Text>
-//           <Text>{currentTime}</Text>
-//           <Slider
-//             style={{width: 200, height: 40}}
-//             minimumValue={0}
-//             maximumValue={timeDurarion}
-//             minimumTrackTintColor="#FFFFFF"
-//             maximumTrackTintColor="#000000"
-//           />
-//         </View>
-//         <Button title="+" />
-//         <Button title="-" />
-//       </>
-//     );
-//   };
-
-//   const renderTopView = music => {
-//     return (
-//       <>
-//         <View style={styled.header}>
-//           <Image source={{uri: music.img}} style={styled.img}></Image>
-//         </View>
-//         <View style={styled.title}>
-//           <FontAwesomeIcon icon={faEllipsisV} style={styled.icon} size={20} />
-//           <View>
-//             <Text style={styled.titleNameSong}>{music.nameSong}</Text>
-//             <Text style={styled.titleNameArtist}>{music.nameArtist}</Text>
-//           </View>
-//           <FontAwesomeIcon icon={faHeart} style={styled.icon} size={20} />
-//         </View>
-//       </>
-//     );
-//   };
-
-//   return (
-//     <View style={styled.main}>
-//       <View style={styled.viewTop}>{renderTopView(music)}</View>
-//       <View style={styled.viewBot}>{renderBotView(music)}</View>
-//     </View>
-//   );
-// }
-
-// const styled = StyleSheet.create({
-//   header: {
-//     flex: 8,
-//     marginTop: 20,
-//   },
-//   title: {
-//     flex: 2,
-//     marginTop: 30,
-//     flexDirection: 'row',
-//     justifyContent: 'space-around',
-//   },
-//   main: {
-//     flex: 1,
-//     backgroundColor: '#364855',
-//     justifyContent: 'space-around',
-//   },
-//   img: {
-//     height: '100%',
-//     width: 250,
-//     borderRadius: 5,
-//     marginLeft: 'auto',
-//     marginRight: 'auto',
-//   },
-//   viewTop: {
-//     flex: 1,
-//   },
-//   viewBot: {
-//     flex: 1,
-//     justifyContent: 'flex-end',
-//     height: 335,
-//   },
-//   botPlay: {
-//     width: '97%',
-//     flex: 0.9,
-//     marginRight: 'auto',
-//     marginLeft: 'auto',
-//     backgroundColor: 'rgba(96, 103, 109, 0.56)',
-//     borderTopRightRadius: 10,
-//     borderTopLeftRadius: 10,
-//   },
-//   icon: {
-//     marginTop: 30,
-//     color: '#C4C4C4',
-//   },
-//   titleNameSong: {
-//     textAlign: 'center',
-//     color: 'white',
-//     fontSize: 20,
-//   },
-//   titleNameArtist: {
-//     textAlign: 'center',
-//     color: 'white',
-//     fontSize: 15,
-//   },
-// });
