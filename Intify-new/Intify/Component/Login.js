@@ -10,13 +10,15 @@ import {
   Alert,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {compose} from 'redux';
 
 export default class LoginView extends Component {
   constructor(props) {
     super(props);
-    state = {
-      email: '',
+    this.state = {
+      username: '',
       password: '',
+      success: true,
     };
   }
 
@@ -28,16 +30,34 @@ export default class LoginView extends Component {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          username: this.state.email,
+          username: this.state.username,
           password: this.state.password,
         }),
       });
-      const json = await response.json();
-      try {
-        await AsyncStorage.setItem('@storage_accessToken', json.message.accessToken)
-        await AsyncStorage.setItem('@storage_refreshToken', json.message.refreshToken)
-      } catch (error) {
-      console.log(error);
+      if (response.status === 500) {
+        this.setState({
+          success: !this.state.success,
+        });
+        setTimeout(() => {
+          this.setState({
+            success: !this.state.success,
+          });
+        }, 4000);
+        
+      } else {
+        const json = await response.json();
+        try {
+          await AsyncStorage.setItem(
+            '@storage_accessToken',
+            json.message.accessToken,
+          );
+          await AsyncStorage.setItem(
+            '@storage_refreshToken',
+            json.message.refreshToken,
+          );
+        } catch (error) {
+          console.log(error);
+        }
       }
     } catch (error) {
       console.error(error);
@@ -52,25 +72,27 @@ export default class LoginView extends Component {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          token: await AsyncStorage.getItem('@storage_refreshToken')
+          token: await AsyncStorage.getItem('@storage_refreshToken'),
         }),
-      });  
-      await AsyncStorage.removeItem('@storage_refreshToken')
-      await AsyncStorage.removeItem('@storage_accessToken')
-      } catch (error) {
+      });
+      await AsyncStorage.removeItem('@storage_refreshToken');
+      await AsyncStorage.removeItem('@storage_accessToken');
+    } catch (error) {
       console.log(error);
-      }
     }
+  }
 
   render() {
     const {navigation} = this.props;
     return (
       <View style={styles.container}>
-        <View style={styles.inputContainer}>
-          <TextInput
+
+        <Text style={styles.warningText}> {this.state.success ? "" : "*Wrong Username or Password"}</Text>
+       
+       <View style={styles.inputContainer}>
+       <TextInput
             style={styles.inputs}
-            placeholder="Email"
-            keyboardType="email-address"
+            placeholder="Username"
             underlineColorAndroid="transparent"
             onChangeText={email => this.setState({email})}
           />
@@ -91,8 +113,6 @@ export default class LoginView extends Component {
           onPress={() => this.Login()}>
           <Text style={styles.loginText}>Login</Text>
         </TouchableHighlight>
-
-        
 
         <TouchableHighlight
           style={styles.buttonContainer}
@@ -115,7 +135,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#DCDCDC',
+    //backgroundColor: '#BDEEFF',
+    backgroundColor: '#2E474F'
   },
   inputContainer: {
     borderBottomColor: '#F5FCFF',
@@ -155,4 +176,9 @@ const styles = StyleSheet.create({
   loginText: {
     color: 'white',
   },
+  warningText: {
+    color: 'red',
+    marginBottom: 5,
+    fontSize: 12
+  }
 });
