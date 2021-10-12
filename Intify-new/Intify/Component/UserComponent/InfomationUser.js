@@ -20,6 +20,10 @@ export default class InfomationUser extends Component {
         },
       })
         .then(async response => {
+          const json = await response.json();
+            this.setState({
+              user: json.user,
+            })
           if (!response.ok) {
             console.log('token het han');
             refreshToken();
@@ -42,11 +46,6 @@ export default class InfomationUser extends Component {
             } catch (error) {
               console.log(error);
             }
-          } else {
-            const json = await response.json();
-            this.setState({
-              user: json.user,
-            });
           }
         })
         .catch(error => {
@@ -59,6 +58,7 @@ export default class InfomationUser extends Component {
 
 
   Logout = async () => {
+    const {navigation} = this.props
     try {
       const response = await fetch('http://10.0.2.2:5000/logout', {
         method: 'post',
@@ -72,6 +72,7 @@ export default class InfomationUser extends Component {
       await AsyncStorage.removeItem('@storage_refreshToken');
       await AsyncStorage.removeItem('@storage_accessToken');
       console.log(await AsyncStorage.getItem('@storage_accessToken'));
+      navigation.goBack()
     } catch (error) {
       console.log(error);
     }

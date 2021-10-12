@@ -38,7 +38,7 @@ class MusicController {
   //GET ListMusic
   showListMusic(req, res, body) {
     Music.find({})
-      .then((music) => res.json({ musics: music }))
+      .then((music) => res.json({musics: music}))
       .catch((error) => next(error));
   }
 

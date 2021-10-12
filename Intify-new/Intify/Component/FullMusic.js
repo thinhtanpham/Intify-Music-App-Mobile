@@ -1,7 +1,5 @@
 import React, {Component} from 'react';
 import {Text, Button, View, Image, StyleSheet, FlatList} from 'react-native';
-import Modal from 'react-native-modal';
-import {Overlay} from 'react-native-elements';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {
   faStepBackward,
@@ -14,36 +12,50 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import Slider from '@react-native-community/slider';
 import systemSetting from 'react-native-system-setting';
-const Sound = require('react-native-sound');
+import {connect} from 'react-redux'
+import { addPlaying } from '../Redux/Action/isPlayingAction'
 
-Sound.setCategory('Playback');
+const Sound=require('react-native-sound');
+Sound.setCategory('Playback', true);
 
-export default class FullMusic extends Component {
+class FullMusic extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      music: this.props.route.params.music || this.props.music,
-      newMusic: {},
+      music: {},
+      musicPlaying: {},
       timeDurarion: 0,
       currentTime: 0,
       setTime: {},
       status: true,
       visible: false,
+      volume: 0
     };
+    
   }
 
   componentDidMount() {
-    
-    const newMusic = new Sound(this.state.music.mp3, Sound.MAIN_BUNDLE, err => {
+    systemSetting.getVolume().then((volume)=>{
+      this.setState({
+        volume: volume
+      })
+    });
+    this.setState({
+      music: this.props.rePlaying,
+    },() =>{
+    const  musicPlaying = new Sound(this.state.music.mp3, Sound.MAIN_BUNDLE, err => {
       if (err) {
         consoloe.log(err);
       } else {
+        musicPlaying.nameArtist= this.state.music.nameArtist
+        musicPlaying.nameSong = this.state.music.nameSong
         this.setState({
-          newMusic: newMusic,
-          timeDurarion: newMusic.getDuration(),
+          musicPlaying: musicPlaying,
+          timeDurarion:  musicPlaying.getDuration(),
         });
       }
     });
+  })
   }
 
   componentWillUnmount() {
@@ -58,6 +70,9 @@ export default class FullMusic extends Component {
 
   changedVolume(index) {
     systemSetting.setVolume(index);
+    this.setState({
+      volume: index
+    })
   }
 
   statusMusic(status, value) {
@@ -65,24 +80,31 @@ export default class FullMusic extends Component {
       {
         status: status,
       },
-      () => {
-        const {newMusic} = this.state;
+      async () => {
+        const {musicPlaying} = await this.state  
         if (status) {
+          this.props.addPlaying(musicPlaying)
           clearInterval(this.state.setTime);
-          newMusic.setCurrentTime(value);
-          newMusic.play();
+          musicPlaying.setCurrentTime(value)
+          musicPlaying.play((success) => {
+            if (success) {
+              console.log('successfully finished playing');
+            } else {
+              console.log('playback failed due to audio decoding errors');
+            }
+          })
           this.state.setTime = setInterval(() => {
-            newMusic.getCurrentTime(second => {
+            musicPlaying.getCurrentTime(second => {
               this.setState({
                 currentTime: second,
               });
             });
           }, 1000);
         } else {
-          newMusic.pause();
+          musicPlaying.pause();
           clearInterval(this.state.setTime);
-          newMusic.setCurrentTime(value);
-          newMusic.getCurrentTime(second => {
+          musicPlaying.setCurrentTime(value);
+          musicPlaying.getCurrentTime(second => {
             this.setState({
               currentTime: second,
             });
@@ -131,7 +153,7 @@ export default class FullMusic extends Component {
                       style={styled.sliderVolume}
                       minimumValue={0}
                       maximumValue={1}
-                      value={0.5}
+                      value={this.state.volume}
                       step={0.1}
                       onValueChange={value => this.changedVolume(value)}
                       minimumTrackTintColor="#243039"
@@ -163,28 +185,23 @@ export default class FullMusic extends Component {
             </View>
           </View>
 
-         
           <View style={{flexDirection: 'row', flex: 2}}>
             <FontAwesomeIcon
-              icon={faStepBackward}
-              style={styled.iconPlayPause}
-              size={30}
-            />
-            <FontAwesomeIcon
-              icon={this.state.newMusic._playing ? faPauseCircle : faPlayCircle}
-              onPress={() => {
-                this.state.newMusic._playing
-                  ? this.statusMusic(false, this.state.currentTime)
-                  : this.statusMusic(true, this.state.currentTime);
+              icon={this.state.musicPlaying._playing ? faPauseCircle : faPlayCircle}
+              onPress={async () => {
+                this.state.musicPlaying._playing
+                  ? ( this.statusMusic(false, this.state.currentTime))
+                  : ( this.statusMusic(true, this.state.currentTime));
               }}
+              
               style={styled.iconPlayPause}
               size={40}
             />
-            <FontAwesomeIcon
+            {/* <FontAwesomeIcon
               icon={faStepForward}
               style={styled.iconPlayPause}
               size={30}
-            />
+            /> */}
           </View>
           <View style={{flex: 1, backgroundColor: 'orange'}}></View>
         </View>
@@ -316,3 +333,19 @@ const styled = StyleSheet.create({
     margin: 0,
   },
 });
+
+const mapStateToProps = (state) =>{
+  return{
+    rePlaying: state.isPlayingReducer.rePlaying,
+    isPlaying: state.isPlayingReducer.isPlaying
+  }
+}
+const mapDispatchToProps = (dispatch) => {
+  return{
+    addPlaying: (music) => {
+      dispatch(addPlaying(music))
+    }
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(FullMusic)

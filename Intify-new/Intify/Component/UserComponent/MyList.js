@@ -64,9 +64,9 @@ export default class MyList extends Component {
           <Text style={styled.allList}>My List</Text>
           {/* <LinearGradient colors={['#FFFFFF15', '#FFFFFF01']} style={styled.scrollView}> */}
           <ScrollView>
-            {(this.state.mymusic ? this.state.myMusic.map((music, index) => (
+            {(this.state.mymusic ? <Text>Ban chua dang bai nao</Text> :  this.state.myMusic.map((music, index) => (
               <MusicItem music={music} key={index} />
-            )) : <Text>Ban chua dang bai nao</Text>)}
+            )))}
           </ScrollView>
           {/* </LinearGradient> */}
         </View>

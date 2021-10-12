@@ -1,13 +1,18 @@
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import React, {Component} from 'react';
 import {Image, Text, View, StyleSheet, Button, TouchableOpacity} from 'react-native';
+import {connect} from 'react-redux'
+import { rePlaying } from '../Redux/Action/isPlayingAction';
 
-export default function MusicItem (props) {
+
+function MusicItem (props) {
+
     const {music, navigation} = props;
     return (
-      <TouchableOpacity onPress={()=> navigation.navigate('FullMusic', {
-        music: music 
-        })} >
+      <TouchableOpacity onPress={()=> {
+        props.addRePlaying(music)
+        navigation.push('FullMusic')
+        }} >
       <View style={style.itemView} >
         <View>
           <Image source={{uri: music.img}} style={style.img}></Image>
@@ -20,6 +25,15 @@ export default function MusicItem (props) {
       </TouchableOpacity>
     );
   
+    
+}
+
+const mapDispatchToProps=(dispatch) => {
+  return{
+    addRePlaying: (music) => {
+      dispatch(rePlaying(music))
+    }
+  }
 }
 
 const style = StyleSheet.create({
@@ -53,3 +67,5 @@ const style = StyleSheet.create({
     fontSize: 15
   }
 });
+
+export default connect(null, mapDispatchToProps)(MusicItem)
