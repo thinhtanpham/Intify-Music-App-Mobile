@@ -1,5 +1,11 @@
 import React, {Component} from 'react';
 import {TouchableOpacity, View, Image, Text, StyleSheet} from 'react-native';
+import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
+import {
+  faPauseCircle,
+  faPlayCircle,
+} from '@fortawesome/free-solid-svg-icons';
+import Context from '../Context';
 
 export default class SmallPlaying extends Component {
 
@@ -11,25 +17,39 @@ export default class SmallPlaying extends Component {
   }
 
   render() {
-    const music = this.props.isPlaying;
+    const {music} = this.props
     if (this.isEmpty(music)) {
       return (
-        <TouchableOpacity
-          onPress={() => {
-            //   props.addRePlaying(music);
-            //   navigation.navigate('FullMusic');
-          }}
-          style={{zIndex: 2, backgroundColor: 'red'}}>
           <View style={style.itemView}>
-            <View>
-              {/* <Image source={{uri: music.img}} style={style.img}></Image> */}
+            <View style={{marginBottom: 'auto',marginTop: 'auto'}}>
+              <Image source={{uri: music.img}} style={style.img}></Image>
             </View>
             <View style={style.itemContent}>
-              <Text style={style.titleNameSong}>{music.nameSong}</Text>
-              <Text style={style.titleNameArtist}>{music.nameArtist}</Text>
+              <View style={{flexDirection:'row', flex: 1}}>
+                <Text style={style.titleNameSong}>{music.nameSong}</Text>
+                <Text style={style.titleNameSong}> - </Text>
+                <Text style={style.titleNameArtist}>{music.nameArtist}</Text>
+              </View>
+              <View style={{flexDirection:'row', flex: 1}}>
+              <Context.Consumer>{(context) =>
+                <FontAwesomeIcon
+                  icon={
+                    music._playing
+                      ? faPlayCircle
+                      : faPauseCircle
+                  }
+                  onPress={async () => {
+                    music._playing
+                      ? (music.pause(), context.setMusicPlaying(music))
+                      : (music.play(), context.setMusicPlaying(music))
+                  }}
+                  style={style.iconPlayPause}
+                  size={30}
+                />
+            }</Context.Consumer>
+              </View>
             </View>
           </View>
-        </TouchableOpacity>
       );
     } else {
       return <></>;
@@ -39,32 +59,38 @@ export default class SmallPlaying extends Component {
 
 const style = StyleSheet.create({
   itemView: {
+    backgroundColor: 'white',
     flexDirection: 'row',
-    marginTop: 3,
-    marginBottom: 3,
-    marginLeft: 3,
-    width: 378,
-    height: 90,
+    height: 82,
+    zIndex: 3
   },
   itemContent: {
     flexDirection: 'column',
-    margin: 5,
-    top: 14,
-    left: 14,
+    marginLeft:'auto',
+    marginRight: 'auto',
   },
   img: {
-    top: 8,
-    left: 10,
-    height: 80,
-    width: 80,
+    marginLeft: 20,
+    height: 75,
+    width: 75,
     borderRadius: 5,
   },
   titleNameSong: {
-    color: 'white',
-    fontSize: 20,
-  },
-  titleNameArtist: {
-    color: 'white',
+    marginTop: 'auto',
+    marginBottom: 'auto',
+    color: 'black',
     fontSize: 15,
   },
+  titleNameArtist: {
+    marginTop: 'auto',
+    marginBottom: 'auto',
+    color: 'black',
+    fontSize: 15,
+  },
+  iconPlayPause: {
+   
+    color: '#C4C4C4',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+  }
 });

@@ -16,7 +16,7 @@ export default class MyList extends Component {
   async componentDidMount() {
     try {
       const asAccessTk = await AsyncStorage.getItem('@storage_accessToken');
-      await fetch('http://10.0.2.2:3002/account/mylist', {
+      await fetch('http://10.0.2.2:3002/account/mylist', { //  http://10.0.2.2:3002/account/mylist
         headers: {
           Authorization: 'Bearer ' + asAccessTk,
         },

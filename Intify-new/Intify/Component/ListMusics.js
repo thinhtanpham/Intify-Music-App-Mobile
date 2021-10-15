@@ -7,8 +7,9 @@ import FullMusic from './FullMusic';
 import {connect} from 'react-redux';
 import {thisExpression} from '@babel/types';
 import SmallPlaying from './Modal-Overlays/SmallPlaying';
+import Context from './Context'
 
-class ListMusics extends Component {
+export default class ListMusics extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -27,8 +28,9 @@ class ListMusics extends Component {
   render() {
     const {navigation} = this.props;
     return (
-      <View style={{flex: 1, backgroundColor: '#364855', zIndex: 0}}>
-        <View style={styled.topArea}></View>
+      <View style={{flex: 1, backgroundColor: '#364855'}}>
+        <View style={styled.topArea}>
+        </View>
         <View style={styled.bottomArea}>
           <Text style={styled.allList}>All List</Text>
           <LinearGradient
@@ -40,8 +42,9 @@ class ListMusics extends Component {
               ))}
             </ScrollView>
           </LinearGradient>
-          <SmallPlaying isPlaying={this.props.isPlaying}/>
         </View>
+        <Context.Consumer>{context => <SmallPlaying music={context.isPlaying}/>}
+        </Context.Consumer>
       </View>
     );
   }
@@ -56,8 +59,7 @@ const styled = StyleSheet.create({
     borderTopRightRadius: 5,
   },
   topArea: {
-    flex: 5,
-    //backgroundColor: "orange"
+    flex: 4,
   },
   scrollView: {
     flex: 1,
@@ -73,12 +75,4 @@ const styled = StyleSheet.create({
   },
 });
 
-const mapStateToProps = state => {
-  return {
-    isPlaying: state.isPlayingReducer.isPlaying,
-  };
-};
 
-
-
-export default connect(mapStateToProps)(ListMusics);

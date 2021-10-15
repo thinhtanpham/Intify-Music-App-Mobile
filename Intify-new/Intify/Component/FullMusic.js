@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component, useEffect} from 'react';
 import {Text, Button, View, Image, StyleSheet, FlatList} from 'react-native';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {
@@ -9,13 +9,15 @@ import {
   faEllipsisV,
   faHeart,
   faVolumeUp,
+  faArrowLeft,
 } from '@fortawesome/free-solid-svg-icons';
 import Slider from '@react-native-community/slider';
 import systemSetting from 'react-native-system-setting';
-import {connect} from 'react-redux'
-import { addPlaying } from '../Redux/Action/isPlayingAction'
+import {connect} from 'react-redux';
+import {addPlaying} from '../Redux/Action/isPlayingAction';
+import Context from './Context';
 
-const Sound=require('react-native-sound');
+const Sound = require('react-native-sound');
 Sound.setCategory('Playback', true);
 
 class FullMusic extends Component {
@@ -29,37 +31,50 @@ class FullMusic extends Component {
       setTime: {},
       status: true,
       visible: false,
-      volume: 0
+      volume: 0,
     };
-    
   }
 
+  changeScreen = () =>
+    this.props.navigation.navigate('ListMuics', {
+      goBackData: this.state.musicPlaying,
+    });
+
   componentDidMount() {
-    systemSetting.getVolume().then((volume)=>{
+    systemSetting.getVolume().then(volume => {
       this.setState({
-        volume: volume
-      })
+        volume: volume,
+      });
     });
-    this.setState({
-      music: this.props.rePlaying,
-    },() =>{
-    const  musicPlaying = new Sound(this.state.music.mp3, Sound.MAIN_BUNDLE, err => {
-      if (err) {
-        consoloe.log(err);
-      } else {
-        musicPlaying.nameArtist= this.state.music.nameArtist
-        musicPlaying.nameSong = this.state.music.nameSong
-        this.setState({
-          musicPlaying: musicPlaying,
-          timeDurarion:  musicPlaying.getDuration(),
-        });
-      }
-    });
-  })
+    this.setState(
+      {
+        music: this.props.rePlaying,
+      },
+      () => {
+        const musicPlaying = new Sound(
+          this.state.music.mp3,
+          Sound.MAIN_BUNDLE,
+          err => {
+            if (err) {
+              consoloe.log(err);
+            } else {
+              musicPlaying.nameArtist = this.state.music.nameArtist;
+              musicPlaying.nameSong = this.state.music.nameSong;
+              musicPlaying.img = this.state.music.img
+              this.setState({
+                musicPlaying: musicPlaying,
+                timeDurarion: musicPlaying.getDuration(),
+              });
+            }
+          },
+        );
+      },
+    );
   }
 
   componentWillUnmount() {
     clearInterval(this.state.setTime);
+    this.props.navigation.removeListener;
   }
 
   convertTime(time) {
@@ -71,28 +86,35 @@ class FullMusic extends Component {
   changedVolume(index) {
     systemSetting.setVolume(index);
     this.setState({
-      volume: index
-    })
+      volume: index,
+    });
   }
 
   statusMusic(status, value) {
+    <Context.Consumer>{(context) => 
+    {
+      if(context.isPlaying._loaded){
+      context.isPlaying.release()
+      }
+    }}
+    </Context.Consumer>
     this.setState(
       {
         status: status,
       },
       async () => {
-        const {musicPlaying} = await this.state  
+        const {musicPlaying} = await this.state;
         if (status) {
-          this.props.addPlaying(musicPlaying)
+          this.props.addPlaying(musicPlaying);
           clearInterval(this.state.setTime);
-          musicPlaying.setCurrentTime(value)
-          musicPlaying.play((success) => {
+          musicPlaying.setCurrentTime(value);
+          musicPlaying.play(success => {
             if (success) {
               console.log('successfully finished playing');
             } else {
               console.log('playback failed due to audio decoding errors');
             }
-          })
+          });
           this.state.setTime = setInterval(() => {
             musicPlaying.getCurrentTime(second => {
               this.setState({
@@ -117,7 +139,7 @@ class FullMusic extends Component {
   renderBotView(music) {
     return (
       <>
-        <View style={styled.botPlay}>
+        <View style={styles.botPlay}>
           <View style={{flex: 2, flexDirection: 'row'}}>
             <View style={{flex: 1, flexDirection: 'row', marginLeft: 50}}>
               <FontAwesomeIcon
@@ -133,15 +155,14 @@ class FullMusic extends Component {
                     });
                   }, 4000);
                 }}
-                style={styled.iconVolume}
+                style={styles.iconVolume}
               />
               {this.state.visible ? (
                 <View
-                  style={styled.modal}
+                  style={styles.modal}
                   animationType={'fade'}
                   transparent={true}
-                  visible={this.state.visible}
-                >
+                  visible={this.state.visible}>
                   <View
                     style={{
                       backgroundColor: 'white',
@@ -150,7 +171,7 @@ class FullMusic extends Component {
                       borderRadius: 15,
                     }}>
                     <Slider
-                      style={styled.sliderVolume}
+                      style={styles.sliderVolume}
                       minimumValue={0}
                       maximumValue={1}
                       value={this.state.volume}
@@ -167,9 +188,9 @@ class FullMusic extends Component {
             </View>
           </View>
 
-          <View style={styled.sliderView}>
+          <View style={styles.sliderView}>
             <Slider
-              style={styled.slider}
+              style={styles.slider}
               minimumValue={0}
               maximumValue={this.state.timeDurarion}
               value={this.state.currentTime}
@@ -179,31 +200,41 @@ class FullMusic extends Component {
               minimumTrackTintColor="#FFFFFF"
               maximumTrackTintColor="#000000"
             />
-            <View style={styled.timeView}>
+            <View style={styles.timeView}>
               <Text>{this.convertTime(parseInt(this.state.currentTime))}</Text>
               <Text>{this.convertTime(parseInt(this.state.timeDurarion))}</Text>
             </View>
           </View>
 
           <View style={{flexDirection: 'row', flex: 2}}>
-            <FontAwesomeIcon
-              icon={this.state.musicPlaying._playing ? faPauseCircle : faPlayCircle}
-              onPress={async () => {
-                this.state.musicPlaying._playing
-                  ? ( this.statusMusic(false, this.state.currentTime))
-                  : ( this.statusMusic(true, this.state.currentTime));
-              }}
-              
-              style={styled.iconPlayPause}
-              size={40}
-            />
+            <Context.Consumer>
+              {(context) =>
+                <FontAwesomeIcon
+                  icon={
+                    this.state.musicPlaying._playing
+                      ? faPauseCircle
+                      : faPlayCircle
+                  }
+                  onPress={async () => {
+                    this.state.musicPlaying._playing
+                      ? ( context.setMusicPlaying(this.state.musicPlaying),this.statusMusic(false, this.state.currentTime))
+                      : ( context.setMusicPlaying(this.state.musicPlaying),this.statusMusic(true, this.state.currentTime))
+                  }}
+                  style={styles.iconPlayPause}
+                  size={40}
+                />
+              }
+            </Context.Consumer>
+
             {/* <FontAwesomeIcon
               icon={faStepForward}
-              style={styled.iconPlayPause}
+              style={styles.iconPlayPause}
               size={30}
             /> */}
+
           </View>
-          <View style={{flex: 1, backgroundColor: 'orange'}}></View>
+          <View style={{flex: 1, backgroundColor: 'orange'}}>
+          </View>
         </View>
       </>
     );
@@ -212,16 +243,16 @@ class FullMusic extends Component {
   renderTopView(music) {
     return (
       <>
-        <View style={styled.header}>
-          <Image source={{uri: music.img}} style={styled.img}></Image>
+        <View style={styles.header}>
+          <Image source={{uri: music.img}} style={styles.img}></Image>
         </View>
-        <View style={styled.title}>
-          <FontAwesomeIcon icon={faEllipsisV} style={styled.icon} size={20} />
+        <View style={styles.title}>
+          <FontAwesomeIcon icon={faEllipsisV} style={styles.icon} size={20} />
           <View>
-            <Text style={styled.titleNameSong}>{music.nameSong}</Text>
-            <Text style={styled.titleNameArtist}>{music.nameArtist}</Text>
+            <Text style={styles.titleNameSong}>{music.nameSong}</Text>
+            <Text style={styles.titleNameArtist}>{music.nameArtist}</Text>
           </View>
-          <FontAwesomeIcon icon={faHeart} style={styled.icon} size={20} />
+          <FontAwesomeIcon icon={faHeart} style={styles.icon} size={20} />
         </View>
       </>
     );
@@ -230,15 +261,15 @@ class FullMusic extends Component {
   render() {
     const {music} = this.state;
     return (
-      <View style={styled.main}>
-        <View style={styled.viewTop}>{this.renderTopView(music)}</View>
-        <View style={styled.viewBot}>{this.renderBotView(music)}</View>
+      <View style={styles.main}>
+        <View style={styles.viewTop}>{this.renderTopView(music)}</View>
+        <View style={styles.viewBot}>{this.renderBotView(music)}</View>
       </View>
     );
   }
 }
 
-const styled = StyleSheet.create({
+const styles = StyleSheet.create({
   header: {
     flex: 8,
     marginTop: 20,
@@ -288,7 +319,7 @@ const styled = StyleSheet.create({
     marginLeft: 'auto',
     marginRight: 'auto',
   },
-  iconVolume:{
+  iconVolume: {
     marginTop: 30,
     color: '#C4C4C4',
     marginTop: 'auto',
@@ -332,20 +363,23 @@ const styled = StyleSheet.create({
     height: 30,
     margin: 0,
   },
+  icon: {
+    color: '#C4C4C4',
+  },
 });
 
-const mapStateToProps = (state) =>{
-  return{
+const mapStateToProps = state => {
+  return {
     rePlaying: state.isPlayingReducer.rePlaying,
-    isPlaying: state.isPlayingReducer.isPlaying
-  }
-}
-const mapDispatchToProps = (dispatch) => {
-  return{
-    addPlaying: (music) => {
-      dispatch(addPlaying(music))
-    }
-  }
-}
+    isPlaying: state.isPlayingReducer.isPlaying,
+  };
+};
+const mapDispatchToProps = dispatch => {
+  return {
+    addPlaying: music => {
+      dispatch(addPlaying(music));
+    },
+  };
+};
 
-export default connect(mapStateToProps, mapDispatchToProps)(FullMusic)
+export default connect(mapStateToProps, mapDispatchToProps)(FullMusic);

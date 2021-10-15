@@ -14,7 +14,7 @@ export default class InfomationUser extends Component {
   async componentDidMount() {
     try {
       const asAccessTk = await AsyncStorage.getItem('@storage_accessToken');
-      await fetch('http://10.0.2.2:3002/account/', {
+      await fetch('http://192.168.0.4:3002/account/', { //http://10.0.2.2:3002/account/
         headers: {
           Authorization: 'Bearer ' + asAccessTk,
         },
@@ -71,8 +71,7 @@ export default class InfomationUser extends Component {
       });
       await AsyncStorage.removeItem('@storage_refreshToken');
       await AsyncStorage.removeItem('@storage_accessToken');
-      console.log(await AsyncStorage.getItem('@storage_accessToken'));
-      navigation.goBack()
+      navigation.navigate('ListMuics')
     } catch (error) {
       console.log(error);
     }

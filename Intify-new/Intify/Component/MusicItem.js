@@ -6,7 +6,6 @@ import { rePlaying } from '../Redux/Action/isPlayingAction';
 
 
 function MusicItem (props) {
-
     const {music, navigation} = props;
     return (
       <TouchableOpacity onPress={()=> {

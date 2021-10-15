@@ -10,7 +10,7 @@ import {
   Alert,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {compose} from 'redux';
+
 
 export default class LoginView extends Component {
   constructor(props) {
@@ -22,9 +22,9 @@ export default class LoginView extends Component {
     };
   }
 
-  async Login() {
+  async Login(navigation) {
     try {
-      const response = await fetch('http://10.0.2.2:5000/account/checkLogin', {
+      const response = await fetch('http://10.0.2.2:5000/account/checkLogin', {  //http://10.0.2.2:5000/account/checkLogin
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -34,6 +34,7 @@ export default class LoginView extends Component {
           password: this.state.password,
         }),
       });
+      
       if (response.status === 500) {
         this.setState({
           success: !this.state.success,
@@ -44,7 +45,7 @@ export default class LoginView extends Component {
           });
         }, 4000);
         
-      } else {
+      }else {
         const json = await response.json();
         try {
           await AsyncStorage.setItem(
@@ -55,6 +56,7 @@ export default class LoginView extends Component {
             '@storage_refreshToken',
             json.message.refreshToken,
           );
+          navigation.navigate('User')
         } catch (error) {
           console.log(error);
         }
@@ -94,7 +96,7 @@ export default class LoginView extends Component {
             style={styles.inputs}
             placeholder="Username"
             underlineColorAndroid="transparent"
-            onChangeText={email => this.setState({email})}
+            onChangeText={username => this.setState({username})}
           />
         </View>
 
@@ -110,7 +112,7 @@ export default class LoginView extends Component {
 
         <TouchableHighlight
           style={[styles.buttonContainer, styles.loginButton]}
-          onPress={() => this.Login()}>
+          onPress={() => this.Login(navigation)}>
           <Text style={styles.loginText}>Login</Text>
         </TouchableHighlight>
 
