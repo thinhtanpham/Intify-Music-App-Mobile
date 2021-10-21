@@ -34,7 +34,6 @@ export default class LoginView extends Component {
           password: this.state.password,
         }),
       });
-      
       if (response.status === 500) {
         this.setState({
           success: !this.state.success,
@@ -56,7 +55,7 @@ export default class LoginView extends Component {
             '@storage_refreshToken',
             json.message.refreshToken,
           );
-          navigation.navigate('User')
+          navigation.push('User')
         } catch (error) {
           console.log(error);
         }
@@ -88,11 +87,9 @@ export default class LoginView extends Component {
     const {navigation} = this.props;
     return (
       <View style={styles.container}>
-
         <Text style={styles.warningText}> {this.state.success ? "" : "*Wrong Username or Password"}</Text>
-       
-       <View style={styles.inputContainer}>
-       <TextInput
+      <View style={styles.inputContainer}>
+      <TextInput
             style={styles.inputs}
             placeholder="Username"
             underlineColorAndroid="transparent"

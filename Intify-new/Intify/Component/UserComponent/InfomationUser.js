@@ -14,7 +14,7 @@ export default class InfomationUser extends Component {
   async componentDidMount() {
     try {
       const asAccessTk = await AsyncStorage.getItem('@storage_accessToken');
-      await fetch('http://192.168.0.4:3002/account/', { //http://10.0.2.2:3002/account/
+      await fetch('http://10.0.2.2:3002/account/', { //http://10.0.2.2:3002/account/
         headers: {
           Authorization: 'Bearer ' + asAccessTk,
         },
@@ -24,14 +24,14 @@ export default class InfomationUser extends Component {
             this.setState({
               user: json.user,
             })
-          if (!response.ok) {
+        })
+        .catch(async (error) => {
+          if(error){
             console.log('token het han');
             refreshToken();
             console.log('Dang lay lai token');
             try {
-              const asAccessTk = await AsyncStorage.getItem(
-                '@storage_accessToken',
-              );
+              const asAccessTk = await AsyncStorage.getItem('@storage_accessToken');
               await fetch('http://10.0.2.2:3002/account/', {
                 method: 'get',
                 headers: {
@@ -47,9 +47,6 @@ export default class InfomationUser extends Component {
               console.log(error);
             }
           }
-        })
-        .catch(error => {
-          console.log(error);
         });
     } catch (error) {
       console.log(error);
@@ -59,6 +56,7 @@ export default class InfomationUser extends Component {
 
   Logout = async () => {
     const {navigation} = this.props
+    const reAccessTk= await AsyncStorage.getItem('@storage_refreshToken')
     try {
       const response = await fetch('http://10.0.2.2:5000/logout', {
         method: 'post',
@@ -66,12 +64,12 @@ export default class InfomationUser extends Component {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          token: await AsyncStorage.getItem('@storage_refreshToken'),
+          token: reAccessTk,
         }),
       });
       await AsyncStorage.removeItem('@storage_refreshToken');
       await AsyncStorage.removeItem('@storage_accessToken');
-      navigation.navigate('ListMuics')
+      navigation.navigate('ListMusics')
     } catch (error) {
       console.log(error);
     }

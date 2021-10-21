@@ -5,6 +5,7 @@ import {
   faPauseCircle,
   faPlayCircle,
 } from '@fortawesome/free-solid-svg-icons';
+import Slider from '@react-native-community/slider';
 import Context from '../Context';
 
 export default class SmallPlaying extends Component {
@@ -20,44 +21,45 @@ export default class SmallPlaying extends Component {
     const {music} = this.props
     if (this.isEmpty(music)) {
       return (
-          <View style={style.itemView}>
+          <View style={styles.itemView}>
             <View style={{marginBottom: 'auto',marginTop: 'auto'}}>
-              <Image source={{uri: music.img}} style={style.img}></Image>
+              <Image source={{uri: music.img}} style={styles.img}></Image>
             </View>
-            <View style={style.itemContent}>
+            <View style={styles.itemContent}>
               <View style={{flexDirection:'row', flex: 1}}>
-                <Text style={style.titleNameSong}>{music.nameSong}</Text>
-                <Text style={style.titleNameSong}> - </Text>
-                <Text style={style.titleNameArtist}>{music.nameArtist}</Text>
+                <Text style={styles.titleNameSong}>{music.nameSong}</Text>
+                <Text style={styles.titleNameSong}> - </Text>
+                <Text style={styles.titleNameArtist}>{music.nameArtist}</Text>
               </View>
               <View style={{flexDirection:'row', flex: 1}}>
-              <Context.Consumer>{(context) =>
+              <Context.Consumer>
+              {(context) =>
                 <FontAwesomeIcon
                   icon={
-                    music._playing
+                    context.isPlaying._playing
                       ? faPlayCircle
                       : faPauseCircle
                   }
                   onPress={async () => {
                     music._playing
-                      ? (music.pause(), context.setMusicPlaying(music))
-                      : (music.play(), context.setMusicPlaying(music))
+                    ? (music.pause(), context.setMusicPlaying(music))
+                    : (music.play(), context.setMusicPlaying(music))
                   }}
-                  style={style.iconPlayPause}
+                  style={styles.iconPlayPause}
                   size={30}
                 />
-            }</Context.Consumer>
+              }
+            </Context.Consumer>
               </View>
             </View>
           </View>
       );
     } else {
       return <></>;
-    }
-  }
-}
+    }}}
 
-const style = StyleSheet.create({
+
+const styles = StyleSheet.create({
   itemView: {
     backgroundColor: 'white',
     flexDirection: 'row',
@@ -92,5 +94,11 @@ const style = StyleSheet.create({
     color: '#C4C4C4',
     marginLeft: 'auto',
     marginRight: 'auto',
-  }
+  },
+  slider: {
+    marginRight: 'auto',
+    marginLeft: 'auto',
+    width: 250,
+    height: 40,
+  },
 });

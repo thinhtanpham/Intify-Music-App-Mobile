@@ -72,8 +72,8 @@ class FullMusic extends Component {
     );
   }
 
-  componentWillUnmount() {
-    clearInterval(this.state.setTime);
+  async componentWillUnmount() {
+    await clearInterval(this.state.setTime);
     this.props.navigation.removeListener;
   }
 
@@ -93,6 +93,7 @@ class FullMusic extends Component {
   statusMusic(status, value) {
     <Context.Consumer>{(context) => 
     {
+      console.log(context)
       if(context.isPlaying._loaded){
       context.isPlaying.release()
       }

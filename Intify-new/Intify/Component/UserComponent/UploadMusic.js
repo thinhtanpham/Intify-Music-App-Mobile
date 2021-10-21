@@ -88,7 +88,6 @@ const UploadMusic = () => {
       });
       await AsyncStorage.removeItem('@storage_refreshToken');
       await AsyncStorage.removeItem('@storage_accessToken');
-      console.log(await AsyncStorage.getItem('@storage_accessToken'));
     } catch (error) {
       console.log(error);
     }

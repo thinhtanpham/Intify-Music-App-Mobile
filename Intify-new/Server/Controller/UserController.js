@@ -10,11 +10,9 @@ class UserName {
 
     create(req, res, next) { 
     const { username, password, repassword, nameApp } = req.body;
-    console.log("dang dang ky")
     User.findOne({ username: username })
     .then((user) => {
       if (user) {
-        console.log("cos user roi ne")
         res.status(400).json({
           message:{msgBody: "Da co nguoi dung", msgError:true}
         })
@@ -28,7 +26,6 @@ class UserName {
           bcrypt.hash(newUser.password, salt, (err, hash) => {
             newUser.password = hash;
             newUser.save().then(() => {
-              console.log("dang ky thanh cong ne")
               res.json({
                   status: 200,
                   descp: "create success",

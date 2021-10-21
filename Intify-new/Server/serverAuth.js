@@ -86,7 +86,6 @@ app.post("/logout", (req, res) => {
 
 app.post("/refreshToken", (req, res) => {
   const refreshToken = req.body.token;
-  console.log(refreshToken)
   if (!refreshToken) res.sendStatus(401);
   RefToken.findOne({refToken: refreshToken}).then((reftoken) => {
     jwt.verify(reftoken.refToken, "refresh-bear.", (err, user) => {
