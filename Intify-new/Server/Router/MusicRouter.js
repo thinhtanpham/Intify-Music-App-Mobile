@@ -29,10 +29,10 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 const newSingUpload = upload.fields([{ name: "img" }, { name: "mp3" }]);
 
-// router.get("/uploads/imgSong/:name", MusicController.getFileImg);
 router.get("/", MusicController.showListMusic);
-router.get("/add", MusicController.formAddMusic);
 router.post("/add/newSong",authenticateToken, newSingUpload, MusicController.addNewMusic);
 router.put("/editMusic/:_id",authenticateToken, MusicController.editMusic)
+router.delete("/delete/:id",MusicController.deleteMusic)
+
 
 module.exports = router;

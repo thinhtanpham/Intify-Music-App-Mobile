@@ -14,11 +14,6 @@ const methodOverride= require('method-override')
 const LocalStrategy = require('passport-local').Strategy;
 const fs= require('fs')
 
-// const httpsServer= https.createServer({
-//   key: fs.readFileSync(path.join(__dirname, 'cert', 'key.pem')),
-//   cert: fs.readFileSync(path.join(__dirname, 'cert', 'cert.pem'))
-// }, app)
-
 dbConnect.Connect()
 
 app.use(cors())

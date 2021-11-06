@@ -7,6 +7,7 @@ const User = new Schema(
     password: { type: String, required: true },
     nameApp: { type: String, required: true },
     imgArtist: { type: String },
+    hasUpload: { type: Boolean}
   },
   {
     timestamps: true,

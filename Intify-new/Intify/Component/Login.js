@@ -10,7 +10,7 @@ import {
   Alert,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import LinearGradient from 'react-native-linear-gradient';
 
 export default class LoginView extends Component {
   constructor(props) {
@@ -24,7 +24,8 @@ export default class LoginView extends Component {
 
   async Login(navigation) {
     try {
-      const response = await fetch('http://10.0.2.2:5000/account/checkLogin', {  //http://10.0.2.2:5000/account/checkLogin
+      const response = await fetch('http://10.0.2.2:5000/account/checkLogin', {
+        //http://10.0.2.2:5000/account/checkLogin
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -43,8 +44,7 @@ export default class LoginView extends Component {
             success: !this.state.success,
           });
         }, 4000);
-        
-      }else {
+      } else {
         const json = await response.json();
         try {
           await AsyncStorage.setItem(
@@ -55,7 +55,7 @@ export default class LoginView extends Component {
             '@storage_refreshToken',
             json.message.refreshToken,
           );
-          navigation.push('User')
+          navigation.replace('User');
         } catch (error) {
           console.log(error);
         }
@@ -86,65 +86,76 @@ export default class LoginView extends Component {
   render() {
     const {navigation} = this.props;
     return (
-      <View style={styles.container}>
-        <Text style={styles.warningText}> {this.state.success ? "" : "*Wrong Username or Password"}</Text>
-      <View style={styles.inputContainer}>
-      <TextInput
-            style={styles.inputs}
-            placeholder="Username"
-            underlineColorAndroid="transparent"
-            onChangeText={username => this.setState({username})}
-          />
-        </View>
+      <LinearGradient colors={['#52697A', '#5A6C91']} style={{flex: 1}}>
+        <Image style={styles.imgLogo} source={require('./src/img/logo2.png')} />
+        <View style={styles.container}>
+          <Text style={styles.warningText}>
+            {' '}
+            {this.state.success ? '' : '*Wrong Username or Password'}
+          </Text>
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.inputs}
+              placeholder="Username"
+              underlineColorAndroid="transparent"
+              onChangeText={username => this.setState({username})}
+            />
+          </View>
 
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.inputs}
-            placeholder="Password"
-            secureTextEntry={true}
-            underlineColorAndroid="transparent"
-            onChangeText={password => this.setState({password})}
-          />
-        </View>
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.inputs}
+              placeholder="Password"
+              secureTextEntry={true}
+              underlineColorAndroid="transparent"
+              onChangeText={password => this.setState({password})}
+            />
+          </View>
 
-        <TouchableHighlight
-          style={[styles.buttonContainer, styles.loginButton]}
-          onPress={() => this.Login(navigation)}>
-          <Text style={styles.loginText}>Login</Text>
-        </TouchableHighlight>
+          <TouchableHighlight
+            style={[styles.buttonContainer, styles.loginButton]}
+            onPress={() => this.Login(navigation)}>
+            <Text style={styles.loginText}>Login</Text>
+          </TouchableHighlight>
 
-        <TouchableHighlight
+          {/* <TouchableHighlight
           style={styles.buttonContainer}
-          onPress={() => this.onClickListener('restore_password')}>
+          onPress={}>
           <Text>Forgot your password?</Text>
         </TouchableHighlight>
 
         <TouchableHighlight
           style={styles.buttonContainer}
-          onPress={() => this.onClickListener('register')}>
+          onPress={}>
           <Text>Register</Text>
-        </TouchableHighlight>
-      </View>
+        </TouchableHighlight> */}
+        </View>
+      </LinearGradient>
     );
   }
 }
 
 const styles = StyleSheet.create({
+  imgLogo: {
+    height: 200,
+    width: 200,
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    marginTop: 50,
+  },
   container: {
+    marginTop: 50,
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
-    //backgroundColor: '#BDEEFF',
-    backgroundColor: '#2E474F'
   },
   inputContainer: {
     borderBottomColor: '#F5FCFF',
     backgroundColor: '#FFFFFF',
-    borderRadius: 30,
+    borderRadius: 5,
     borderBottomWidth: 1,
-    width: 250,
+    width: 300,
     height: 45,
-    marginBottom: 20,
+    marginBottom: 30,
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -166,18 +177,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
+    marginTop: 50,
     width: 250,
-    borderRadius: 30,
+    borderRadius: 5,
   },
   loginButton: {
-    backgroundColor: '#00b5ec',
+    backgroundColor: '#F7FA43',
   },
   loginText: {
-    color: 'white',
+    color: 'black',
+    fontWeight: 'bold',
+    fontSize: 15,
   },
   warningText: {
     color: 'red',
     marginBottom: 5,
-    fontSize: 12
-  }
+    fontSize: 12,
+  },
 });

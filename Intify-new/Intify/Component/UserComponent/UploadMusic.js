@@ -5,23 +5,29 @@ import {
   View,
   TouchableOpacity,
   TextInput,
+  Image,
   TouchableHighlight,
 } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import refreshToken from '../../refreshToken';
+import fs from 'react-native-fs';
+import StatusModal from './StatusModal';
 
 const UploadMusic = () => {
   const [imgUpload, setImgUpload] = useState(null);
   const [mp3Upload, setMp3Upload] = useState(null);
   const [nameSong, setNameSong] = useState('');
   const [nameArtist, setNameArtist] = useState('');
+  const [stateUpload, setStateUpload] = useState(false);
+  const [status, setStatus] = useState(false);
+  const [nullField, setNullField] = useState(false);
 
-  const uploadImage = async () => {
-    if (imgUpload != null && mp3Upload != null) {
+  const uploadSong = async (e) => {
+    if (imgUpload != null && mp3Upload != null && nameSong != null && nameArtist!= null) {
       const data = new FormData();
       data.append('nameSong', nameSong.nameSong);
-      data.append('nameArtist', nameArtist.nameArtist );
+      data.append('nameArtist', nameArtist.nameArtist);
       data.append('img', {
         uri: imgUpload[0].uri,
         type: imgUpload[0].type,
@@ -35,61 +41,65 @@ const UploadMusic = () => {
       try {
         const asAccessTk = await AsyncStorage.getItem('@storage_accessToken');
         await fetch('http://10.0.2.2:3002/add/newSong', {
-        method: 'post',
-        headers: {
-          Accept: 'application/json',
-          type: 'formData',
-          authorization: 'Bearer ' + asAccessTk,
-        },
-        body: data,
-      })
-        .then(async response =>  {
-        console.log("res1 :" + await response)
+          method: 'post',
+          headers: {
+            Accept: 'application/json',
+            type: 'formData',
+            authorization: 'Bearer ' + asAccessTk,
+          },
+          body: data,
         })
-        .catch(async () => { 
-          console.log("token het han")
-          refreshToken()
-          console.log("Dang lay lai token")
-          try {
-            const asAccessTk = await AsyncStorage.getItem('@storage_accessToken');
-            await fetch('http://10.0.2.2:3002/add/newSong', {
-            method: 'post',
-            headers: {
-              Accept: 'application/json',
-              type: 'formData',
-              authorization: 'Bearer ' + asAccessTk,
-            },
-            body: data,
+          .then(async response => {
+            setStateUpload(true);
+            setStatus(true)
+            e.persist()
+            setTimeout(() => setStatus(false)
+            , 5000)
           })
-          .then(async response =>  {
-            console.log("res2 :" + await response)
-          })}
-          catch(error){
-            console.log(error)
-          }
-        }
-        )
+          .catch(async () => {
+            console.log('token het han');
+            refreshToken();
+            console.log('Dang lay lai token');
+            try {
+              const asAccessTk = await AsyncStorage.getItem(
+                '@storage_accessToken',
+              );
+              await fetch('http://10.0.2.2:3002/add/newSong', {
+                method: 'post',
+                headers: {
+                  Accept: 'application/json',
+                  type: 'formData',
+                  authorization: 'Bearer ' + asAccessTk,
+                },
+                body: data,
+              }).then(() => {
+                setStateUpload(true);
+                setStatus(true)
+                e.persist()
+                setTimeout(() => setStatus(false)
+                , 3000)
+              });
+            } catch (error) {
+              setStateUpload(false);
+              setStatus(true)
+              e.persist()
+              setTimeout(() => setStatus(false)
+              , 5000)
+            }
+          });
       } catch (error) {
-        console.log(error);
+        setStateUpload(false);
+              setStatus(true)
+              e.persist()
+              setTimeout(() => setStatus(false)
+              , 5000)
       }
     }
-  };
-
-  const Logout = async () => {
-    try {
-      const response = await fetch('http://10.0.2.2:5000/logout', {
-        method: 'post',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          token: await AsyncStorage.getItem('@storage_refreshToken'),
-        }),
-      });
-      await AsyncStorage.removeItem('@storage_refreshToken');
-      await AsyncStorage.removeItem('@storage_accessToken');
-    } catch (error) {
-      console.log(error);
+    else{
+      setNullField(true)
+      e.persist()
+      setTimeout(() => setNullField(false)
+      , 5000)
     }
   };
 
@@ -116,6 +126,9 @@ const UploadMusic = () => {
   };
   return (
     <View style={styles.mainBody}>
+      {stateUpload ? <StatusModal status={status} stateUpload={stateUpload}/> : <StatusModal status={status} stateUpload={stateUpload}/>}
+      <View style={{justifyContent:'center'}}>
+        {nullField ? <Text style={styles.textErr}>* Not null field</Text> : <Text style={styles.textErr}></Text>}
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.inputs}
@@ -124,7 +137,6 @@ const UploadMusic = () => {
           onChangeText={nameSong => setNameSong({nameSong})}
         />
       </View>
-
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.inputs}
@@ -133,7 +145,6 @@ const UploadMusic = () => {
           onChangeText={nameArtist => setNameArtist({nameArtist})}
         />
       </View>
-
       <TouchableOpacity
         style={styles.buttonStyle}
         activeOpacity={0.5}
@@ -149,14 +160,10 @@ const UploadMusic = () => {
       <TouchableOpacity
         style={styles.buttonStyle}
         activeOpacity={0.5}
-        onPress={uploadImage}>
+        onPress={uploadSong}>
         <Text style={styles.buttonTextStyle}>Upload File</Text>
       </TouchableOpacity>
-      <TouchableHighlight
-        style={styles.buttonContainer}
-        onPress={() => Logout()}>
-        <Text>Logout</Text>
-      </TouchableHighlight>
+    </View>
     </View>
   );
 };
@@ -193,28 +200,26 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   inputContainer: {
-    borderBottomColor: '#F5FCFF',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 30,
     borderBottomWidth: 1,
-    width: 250,
+    width: 300,
     height: 45,
-    marginBottom: 20,
+    marginBottom: 10,
     flexDirection: 'row',
-    alignItems: 'center',
+    marginRight: 'auto',
+    marginLeft: 'auto'
   },
   inputs: {
     height: 45,
-    marginLeft: 16,
+    marginLeft: 12,
     borderBottomColor: '#FFFFFF',
     flex: 1,
   },
-  inputIcon: {
-    width: 30,
-    height: 30,
-    marginLeft: 15,
-    justifyContent: 'center',
-  },
+  textErr: {
+    height: 20,
+    color: 'red',
+    marginLeft: 'auto',
+    marginRight:'auto'
+  }
 });
 
 export default UploadMusic;

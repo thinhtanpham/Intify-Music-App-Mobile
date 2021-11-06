@@ -4,6 +4,7 @@ const User = require("../Model/User");
 const { findOne } = require("../Model/User");
 const fs = require("fs");
 const path = require("path");
+const deleteFile = require("../config/deleteFile");
 
 class MusicController {
   editMusic(req, res, next) {
@@ -38,13 +39,8 @@ class MusicController {
   //GET ListMusic
   showListMusic(req, res, body) {
     Music.find({})
-      .then((music) => res.json(music))
+      .then((music) => res.json({musics: music}))
       .catch((error) => next(error));
-  }
-
-  //GET FormAdd
-  formAddMusic(req, res, body) {
-    res.render("uploadNewSong");
   }
 
   //POST AddNewMusic
@@ -78,24 +74,34 @@ class MusicController {
             descp: error,
           })
         );
-    }
-    );
-}
-
-  getFileImg(req, res, body) {
-    const  options = {
-      root : path.join(__dirname + "/../public/uploads/imgSong/")
-    }
-
-    console.log(options);
-
-    res.sendFile(req.params.name, options, function (err) {
-      if (err) {
-        next(err);
-      } else {
-        console.log("Sent:", req.params.name);
-      }
     });
+  }
+
+  deleteMusic(req, res, body) {
+    Music.findById(req.params.id)
+      .then((music) => {
+        deleteFile(music.img);
+        deleteFile(music.mp3);
+        Music.findByIdAndDelete(req.params.id)
+          .then(
+            res.json({
+              status: 200,
+              msg: "success delete",
+            })
+          )
+          .catch((err) =>
+            res.json({
+              status: 404,
+              msg: err,
+            })
+          );
+      })
+      .catch((err) =>
+        res.json({
+          status: 404,
+          msg: err,
+        })
+      );
   }
 }
 

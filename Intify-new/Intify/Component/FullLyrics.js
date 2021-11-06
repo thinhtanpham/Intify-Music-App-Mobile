@@ -14,6 +14,7 @@ import { getListMusic } from '../Server';
 state={
   list:[]
 }
+
 export default class FullLyrics extends Component {
 
   componentDidMount(){

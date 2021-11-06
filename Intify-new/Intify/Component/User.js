@@ -3,7 +3,9 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import InfomationUser from './UserComponent/InfomationUser';
 import UploadMusic from './UserComponent/UploadMusic';
 import {StatusBar} from 'react-native';
-import MyList from './UserComponent/MyList';
+import MyUpload from './UserComponent/MyUpload';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import {faUserCircle, faUpload, faClipboardList, faList} from '@fortawesome/free-solid-svg-icons';
 
 const Tab = createBottomTabNavigator();
 export default class User extends Component {
@@ -13,7 +15,8 @@ export default class User extends Component {
         <Tab.Screen
           options={{
             headerShown: false,
-            title: "User"
+            title: "User",
+            tabBarIcon: () => <FontAwesomeIcon icon={faUserCircle} size={20} style={{color:"#5A8991"}}/>
           }}
           name="InformationUser"
           component={InfomationUser}
@@ -21,7 +24,8 @@ export default class User extends Component {
         <Tab.Screen
           options={{
             headerShown: false,
-            title: "Upload"
+            title: "Upload",
+            tabBarIcon: () => <FontAwesomeIcon icon={faUpload} size={20} style={{color:"#5A8991"}}/>
           }}
           name="UploadMusic"
           component={UploadMusic}
@@ -29,10 +33,11 @@ export default class User extends Component {
         <Tab.Screen
           options={{
             headerShown: false,
-            title: "My List"
+            title: "My List",
+            tabBarIcon: () => <FontAwesomeIcon icon={faList} size={20} style={{color:"#5A8991"}}/>
           }}
           name="MyList"
-          component={MyList}
+          component={MyUpload}
         />
       </Tab.Navigator>
     );

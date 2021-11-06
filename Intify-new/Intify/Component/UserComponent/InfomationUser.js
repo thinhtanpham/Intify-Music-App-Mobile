@@ -1,13 +1,15 @@
 import React, {Component} from 'react';
-import {Text, View, StyleSheet, TouchableOpacity} from 'react-native';
+import {Text, View, StyleSheet, Image, ScrollView, TouchableOpacity} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import refreshToken from '../../refreshToken';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import {faUserCircle} from '@fortawesome/free-solid-svg-icons';
 
 export default class InfomationUser extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      user: [],
+      user: {},
     };
   }
 
@@ -20,34 +22,32 @@ export default class InfomationUser extends Component {
         },
       })
         .then(async response => {
-          const json = await response.json();
-            this.setState({
-              user: json.user,
-            })
-        })
-        .catch(async (error) => {
-          if(error){
-            console.log('token het han');
-            refreshToken();
-            console.log('Dang lay lai token');
-            try {
-              const asAccessTk = await AsyncStorage.getItem('@storage_accessToken');
-              await fetch('http://10.0.2.2:3002/account/', {
-                method: 'get',
-                headers: {
-                  Authorization: 'Bearer ' + asAccessTk,
-                },
-              }).then(async response => {
-                const json = await response.json();
-                this.setState({
-                  user: json.user,
+          if (!response.ok) {
+              refreshToken();
+              try {
+                asAccessTk = await AsyncStorage.getItem('@storage_accessToken');
+                await fetch('http://10.0.2.2:3002/account/', {
+                  method: 'get',
+                  headers: {
+                    Authorization: 'Bearer ' + asAccessTk,
+                  },
+                }).then(async response => {
+                  const json = await response.json();
+                  this.setState({
+                    user: json.user,
+                  });
                 });
-              });
-            } catch (error) {
-              console.log(error);
+              } catch (error) {
+                console.log(error);
+              }
+            } else {
+              const json = await response.json();
+                  this.setState({
+                    user: json.user,
+                  });
             }
-          }
-        });
+        })
+        .catch(error => console.log(error))
     } catch (error) {
       console.log(error);
     }
@@ -78,8 +78,21 @@ export default class InfomationUser extends Component {
   render() {
     return (
       <View>
-        <Text>{this.state.user.username}</Text>
-        <Text>{this.state.user.nameApp}</Text>
+        {/* <Image style={styles.avatar}/> */}
+        <FontAwesomeIcon style={styles.avatar} icon={faUserCircle} size={120}/>
+        <Text style={styles.name}>{this.state.user.nameApp}</Text>
+        <ScrollView style={{height: 300}}>
+          <View style={styles.areaInfo}>
+            <Text style={styles.fieldInfo}>Account:</Text>
+            <Text>{this.state.user.username}</Text>
+          </View>
+          <View style={styles.areaInfo}>
+            <Text style={styles.fieldInfo}>Day Created:</Text>
+            <Text>{this.state.user.dayCreate}</Text>
+          </View>
+          
+          
+        </ScrollView>
         <TouchableOpacity
         style={styles.buttonStyle}
         activeOpacity={0.5}
@@ -115,36 +128,33 @@ const styles = StyleSheet.create({
       paddingVertical: 10,
       fontSize: 16,
     },
-    textStyle: {
-      backgroundColor: '#fff',
-      fontSize: 15,
-      marginTop: 16,
-      marginLeft: 35,
-      marginRight: 35,
+    name: {
+      marginBottom: 30,
+      fontSize: 30,
+      fontWeight: "bold",
       textAlign: 'center',
     },
-    inputContainer: {
-      borderBottomColor: '#F5FCFF',
-      backgroundColor: '#FFFFFF',
-      borderRadius: 30,
+    avatar: {
+      height: 150,
+      width: 150,
+      marginTop: 50,
+      marginBottom: 50,
+      marginLeft: "auto",
+      marginRight: "auto",
+      color: "#5A8991"
+    },
+    fieldInfo: {
+      marginBottom: 10,
+      fontSize: 15,
+      fontWeight: "bold"
+    },
+    areaInfo:{
+      marginLeft: 30,
+      marginRight: 30,
+      marginBottom: 30,
       borderBottomWidth: 1,
-      width: 250,
-      height: 45,
-      marginBottom: 20,
-      flexDirection: 'row',
-      alignItems: 'center',
-    },
-    inputs: {
-      height: 45,
-      marginLeft: 16,
-      borderBottomColor: '#FFFFFF',
-      flex: 1,
-    },
-    inputIcon: {
-      width: 30,
-      height: 30,
-      marginLeft: 15,
-      justifyContent: 'center',
-    },
+      flexDirection: "row",
+      justifyContent: "space-between"
+    }
   });
   

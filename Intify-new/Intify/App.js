@@ -5,7 +5,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import FullMusic from './Component/FullMusic';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-import {faUserCircle, faArrowLeft} from '@fortawesome/free-solid-svg-icons';
+import {faUserCircle} from '@fortawesome/free-solid-svg-icons';
 import LoginView from './Component/Login';
 import UploadMusic from './Component/UserComponent/UploadMusic';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -95,7 +95,10 @@ function App(props) {
             <Stack.Screen
               name="Login"
               component={LoginView}
-              options={{headerStyle: {backgroundColor: '#364855'}}}
+              options={{headerStyle: {backgroundColor: '#243039'},
+              headerTitleStyle: {color: "white"},
+              headerTintColor: "white"
+            }}
             />
             <Stack.Screen name="User" component={User} />
           </Stack.Navigator>

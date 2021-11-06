@@ -87,7 +87,8 @@ app.post("/logout", (req, res) => {
 app.post("/refreshToken", (req, res) => {
   const refreshToken = req.body.token;
   if (!refreshToken) res.sendStatus(401);
-  RefToken.findOne({refToken: refreshToken}).then((reftoken) => {
+  RefToken.findOne({refToken: refreshToken})
+  .then((reftoken) => {
     jwt.verify(reftoken.refToken, "refresh-bear.", (err, user) => {
       if (err) return res.sendStatus(403);
       const newuser = { username: user.username };
@@ -101,7 +102,6 @@ app.post("/refreshToken", (req, res) => {
 });
 
 function generateToken(user) {
-  console.log(user);
   return jwt.sign(user, "bear.", { expiresIn: "10m" });
 }
 

@@ -7,6 +7,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import Slider from '@react-native-community/slider';
 import Context from '../Context';
+import { icon } from '@fortawesome/fontawesome-svg-core';
 
 export default class SmallPlaying extends Component {
 
@@ -32,24 +33,25 @@ export default class SmallPlaying extends Component {
                 <Text style={styles.titleNameArtist}>{music.nameArtist}</Text>
               </View>
               <View style={{flexDirection:'row', flex: 1}}>
-              <Context.Consumer>
+              {/* <Context.Consumer>
               {(context) =>
+                 */}
                 <FontAwesomeIcon
                   icon={
-                    context.isPlaying._playing
-                      ? faPlayCircle
-                      : faPauseCircle
+                    music._playing
+                      ? (faPlayCircle)
+                      : (faPauseCircle)
                   }
                   onPress={async () => {
                     music._playing
-                    ? (music.pause(), context.setMusicPlaying(music))
-                    : (music.play(), context.setMusicPlaying(music))
+                    ? (music.pause())
+                    : (music.play())
                   }}
                   style={styles.iconPlayPause}
                   size={30}
                 />
-              }
-            </Context.Consumer>
+              {/* }
+            </Context.Consumer> */}
               </View>
             </View>
           </View>

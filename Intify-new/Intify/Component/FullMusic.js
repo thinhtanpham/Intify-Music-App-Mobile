@@ -20,6 +20,7 @@ import Context from './Context';
 const Sound = require('react-native-sound');
 Sound.setCategory('Playback', true);
 
+
 class FullMusic extends Component {
   constructor(props) {
     super(props);
@@ -35,13 +36,8 @@ class FullMusic extends Component {
     };
   }
 
-  changeScreen = () =>
-    this.props.navigation.navigate('ListMuics', {
-      goBackData: this.state.musicPlaying,
-    });
-
-  componentDidMount() {
-    systemSetting.getVolume().then(volume => {
+  async componentDidMount() {
+    await systemSetting.getVolume().then(volume => {
       this.setState({
         volume: volume,
       });
@@ -50,7 +46,7 @@ class FullMusic extends Component {
       {
         music: this.props.rePlaying,
       },
-      () => {
+      async () => {
         const musicPlaying = new Sound(
           this.state.music.mp3,
           Sound.MAIN_BUNDLE,
@@ -69,12 +65,11 @@ class FullMusic extends Component {
           },
         );
       },
-    );
+    )
   }
 
   async componentWillUnmount() {
-    await clearInterval(this.state.setTime);
-    this.props.navigation.removeListener;
+    clearInterval(this.state.setTime);
   }
 
   convertTime(time) {
@@ -91,20 +86,12 @@ class FullMusic extends Component {
   }
 
   statusMusic(status, value) {
-    <Context.Consumer>{(context) => 
-    {
-      console.log(context)
-      if(context.isPlaying._loaded){
-      context.isPlaying.release()
-      }
-    }}
-    </Context.Consumer>
     this.setState(
       {
         status: status,
       },
       async () => {
-        const {musicPlaying} = await this.state;
+        const {musicPlaying} = this.state;
         if (status) {
           this.props.addPlaying(musicPlaying);
           clearInterval(this.state.setTime);
