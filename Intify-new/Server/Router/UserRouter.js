@@ -8,23 +8,17 @@ const authenticateToken = require('../config/authenticate')
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        if (isImg(file.fieldname)) {
         cb(null, "public/uploads/imgArtist");
-        } 
     },
     filename: function (req, file, cb) {
-        if (isImg(file.fieldname)) {
-        cb(null, req.body.nameSong.split(' ').join('-') + "-" + req.body.nameArtist.split(' ').join('-') +".jpg");
-        }
+        cb(null, req.user.username+".jpg");
     },
     });
-
-const upload = multer({ storage: storage });
-const newImgArtistUpload = upload.fields({ name: "imgArtist"});
+const newImgArtistUpload = multer({ storage: storage });
 
 router.post("/created/newAccount", UserController.create);
 router.get("/",authenticateToken , UserController.userInfo);
 router.get("/mylist",authenticateToken , UserController.myList)
-router.post("/add/imgArtist", newImgArtistUpload, UserController.newImgArtist)
+router.post("/add/imgArtist",authenticateToken, newImgArtistUpload.single("imgArtist") , UserController.newImgArtist)
 
 module.exports = router;

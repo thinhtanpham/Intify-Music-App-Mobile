@@ -2,24 +2,22 @@ import React, {Component, useEffect} from 'react';
 import {Text, Button, View, Image, StyleSheet, FlatList} from 'react-native';
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {
-  faStepBackward,
-  faStepForward,
   faPauseCircle,
   faPlayCircle,
   faEllipsisV,
   faHeart,
   faVolumeUp,
-  faArrowLeft,
 } from '@fortawesome/free-solid-svg-icons';
 import Slider from '@react-native-community/slider';
 import systemSetting from 'react-native-system-setting';
 import {connect} from 'react-redux';
 import {addPlaying} from '../Redux/Action/isPlayingAction';
 import Context from './Context';
+import SplashScreen from './SplashScreen';
+import FullLyrics from './ListMusicsArtist'
 
 const Sound = require('react-native-sound');
 Sound.setCategory('Playback', true);
-
 
 class FullMusic extends Component {
   constructor(props) {
@@ -56,7 +54,7 @@ class FullMusic extends Component {
             } else {
               musicPlaying.nameArtist = this.state.music.nameArtist;
               musicPlaying.nameSong = this.state.music.nameSong;
-              musicPlaying.img = this.state.music.img
+              musicPlaying.img = this.state.music.img;
               this.setState({
                 musicPlaying: musicPlaying,
                 timeDurarion: musicPlaying.getDuration(),
@@ -65,7 +63,7 @@ class FullMusic extends Component {
           },
         );
       },
-    )
+    );
   }
 
   async componentWillUnmount() {
@@ -83,6 +81,13 @@ class FullMusic extends Component {
     this.setState({
       volume: index,
     });
+  }
+
+  isEmpty(obj) {
+    for (var key in obj) {
+      if (obj.hasOwnProperty(key)) return true;
+    }
+    return false;
   }
 
   statusMusic(status, value) {
@@ -124,7 +129,7 @@ class FullMusic extends Component {
     );
   }
 
-  renderBotView(music) {
+  renderBotView() {
     return (
       <>
         <View style={styles.botPlay}>
@@ -196,7 +201,7 @@ class FullMusic extends Component {
 
           <View style={{flexDirection: 'row', flex: 2}}>
             <Context.Consumer>
-              {(context) =>
+              {context => (
                 <FontAwesomeIcon
                   icon={
                     this.state.musicPlaying._playing
@@ -205,23 +210,16 @@ class FullMusic extends Component {
                   }
                   onPress={async () => {
                     this.state.musicPlaying._playing
-                      ? ( context.setMusicPlaying(this.state.musicPlaying),this.statusMusic(false, this.state.currentTime))
-                      : ( context.setMusicPlaying(this.state.musicPlaying),this.statusMusic(true, this.state.currentTime))
+                      ? (context.setMusicPlaying(this.state.musicPlaying),
+                        this.statusMusic(false, this.state.currentTime))
+                      : (context.setMusicPlaying(this.state.musicPlaying),
+                        this.statusMusic(true, this.state.currentTime));
                   }}
                   style={styles.iconPlayPause}
                   size={40}
                 />
-              }
+              )}
             </Context.Consumer>
-
-            {/* <FontAwesomeIcon
-              icon={faStepForward}
-              style={styles.iconPlayPause}
-              size={30}
-            /> */}
-
-          </View>
-          <View style={{flex: 1, backgroundColor: 'orange'}}>
           </View>
         </View>
       </>
@@ -237,8 +235,16 @@ class FullMusic extends Component {
         <View style={styles.title}>
           <FontAwesomeIcon icon={faEllipsisV} style={styles.icon} size={20} />
           <View>
-            <Text style={styles.titleNameSong}>{music.nameSong}</Text>
-            <Text style={styles.titleNameArtist}>{music.nameArtist}</Text>
+            <Text style={styles.titleNameSong}>
+              {music.nameSong.length > 25
+                ? music.nameSong.slice(0, 25).concat('...')
+                : music.nameSong}
+            </Text>
+            <Text style={styles.titleNameArtist}>
+              {music.nameArtist.length > 30
+                ? music.nameArtist.slice(0, 30).concat('...')
+                : music.nameArtist}
+            </Text>
           </View>
           <FontAwesomeIcon icon={faHeart} style={styles.icon} size={20} />
         </View>
@@ -248,11 +254,13 @@ class FullMusic extends Component {
 
   render() {
     const {music} = this.state;
-    return (
+    return this.isEmpty(this.state.musicPlaying) ? (
       <View style={styles.main}>
         <View style={styles.viewTop}>{this.renderTopView(music)}</View>
         <View style={styles.viewBot}>{this.renderBotView(music)}</View>
       </View>
+    ) : (
+      <SplashScreen></SplashScreen>
     );
   }
 }

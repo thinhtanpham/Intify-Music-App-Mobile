@@ -5,17 +5,21 @@ import {
   StyleSheet,
   Text,
   Image,
-  Button,
+  RefreshControl,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import MusicItem from '../MusicItem';
 import LinearGradient from 'react-native-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import refreshToken from '../../refreshToken';
-
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
-import {faWindowClose} from '@fortawesome/free-solid-svg-icons';
+import {
+  faWindowClose,
+  faClosedCaptioning,
+} from '@fortawesome/free-solid-svg-icons';
 import Modal from 'react-native-modal';
+import api from '../../api';
 
 export default class MyList extends Component {
   constructor(props) {
@@ -24,13 +28,14 @@ export default class MyList extends Component {
       myMusic: [],
       status: false,
       musicChoose: {},
+      refresh: false,
     };
   }
 
-  async componentDidMount() {
+  async callApiMyList(){
     try {
       const asAccessTk = await AsyncStorage.getItem('@storage_accessToken');
-      await fetch('http://10.0.2.2:3002/account/mylist', {
+      await fetch('http://'+api+':3002/account/mylist', {
         headers: {
           Authorization: 'Bearer ' + asAccessTk,
         },
@@ -40,7 +45,7 @@ export default class MyList extends Component {
             refreshToken();
             try {
               asAccessTk = await AsyncStorage.getItem('@storage_accessToken');
-              await fetch('http://10.0.2.2:3002/account/mylist', {
+              await fetch('http://'+api+':3002/account/mylist', {
                 method: 'get',
                 headers: {
                   Authorization: 'Bearer ' + asAccessTk,
@@ -69,58 +74,32 @@ export default class MyList extends Component {
     }
   }
 
+  async componentDidMount() {
+    this.callApiMyList()
+  }
+
   async deleteMusic(id) {
-    await fetch('http://10.0.2.2:3002/delete/' + id, {
-      method: 'delete',
-    })
-      .then(async () => {
-        try {
-          const asAccessTk = await AsyncStorage.getItem('@storage_accessToken');
-          await fetch('http://10.0.2.2:3002/account/mylist', {
-            headers: {
-              Authorization: 'Bearer ' + asAccessTk,
-            },
+    Alert.alert('Delete', 'Do you want to delete this song?', [
+      {
+        text: 'Cancel',
+        onPress: () => {},
+      },
+      {
+        text: 'OK',
+        onPress: async () => {
+          await fetch('http://'+api+':3002/delete/' + id, {
+            method: 'delete',
           })
-            .then(async response => {
-              if (!response.ok) {
-                refreshToken();
-                try {
-                  asAccessTk = await AsyncStorage.getItem(
-                    '@storage_accessToken',
-                  );
-                  await fetch('http://10.0.2.2:3002/account/mylist', {
-                    method: 'get',
-                    headers: {
-                      Authorization: 'Bearer ' + asAccessTk,
-                    },
-                  }).then(async response => {
-                    const json = await response.json();
-                    this.setState({
-                      myMusic: json.music,
-                    });
-                  });
-                } catch (error) {
-                  console.log(error);
-                }
-              } else {
-                const json = await response.json();
-                this.setState({
-                  myMusic: json.music,
-                });
-              }
-            })
-            .catch(error => {
-              console.log(error);
-            });
-        } catch (error) {
-          console.log(error);
-        }
-      })
-      .catch(error => console.log(error));
-    this.setState({
-      status: false,
-      musicChoose: {},
-    });
+            .then(async () => this.callApiMyList()
+              )
+            .catch(error => console.log(error));
+          this.setState({
+            status: false,
+            musicChoose: {},
+          });
+        },
+      },
+    ]);
   }
 
   renderSmallMusic(music) {
@@ -130,6 +109,18 @@ export default class MyList extends Component {
     });
   }
 
+  refreshList(){
+    this.setState({
+      refresh: !this.state.refresh
+    })
+    this.callApiMyList()
+    setTimeout(() => {
+      this.setState({
+        refresh: !this.state.refresh
+      })
+    }, 2000);    
+  }
+
   render() {
     return (
       <>
@@ -137,35 +128,54 @@ export default class MyList extends Component {
           isVisible={this.state.status}
           anmationType={'slide'}
           style={styles.modal}>
-          <FontAwesomeIcon
-            icon={faWindowClose}
-            onPress={() =>
-              this.setState({
-                status: false,
-              })
-            }
-          />
           <Image
             style={styles.imgDetail}
             source={{uri: this.state.musicChoose.img}}
           />
           <View style={styles.viewContent}>
-            <Text>Name Song: {this.state.musicChoose.nameSong}</Text>
-            <Text>Name Artist: {this.state.musicChoose.nameArtist}</Text>
-            <Text>Day created: {this.state.musicChoose.createdAt}</Text>
+            <View style={styles.areaInfo}>
+              <Text style={styles.fieldInfo}>Name Song: </Text>
+              <Text>{this.state.musicChoose.nameSong}</Text>
+            </View>
+            <View style={styles.areaInfo}>
+              <Text style={styles.fieldInfo}>Name Artist: </Text>
+              <Text>{this.state.musicChoose.nameArtist}</Text>
+            </View>
+            <View style={styles.areaInfo}>
+              <Text style={styles.fieldInfo}>Day created: </Text>
+              <Text>{this.state.musicChoose.createdAt}</Text>
+            </View>
           </View>
-          <Button
-            title="delete"
-            onPress={() =>
-              this.deleteMusic(this.state.musicChoose._id)
-            }></Button>
+          <View style={{flexDirection: "row", justifyContent: "space-around"}}>
+            <TouchableOpacity
+              style={styles.btnDelete}
+              onPress={() => this.deleteMusic(this.state.musicChoose._id)}>
+              <Text style={styles.textBtnDelete}>Delete</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.btnClose}
+              onPress={() =>
+                this.setState({
+                  status: false,
+                })
+              }>
+              <Text style={styles.textBtnDelete}>Close</Text>
+            </TouchableOpacity>
+          </View>
         </Modal>
         <View style={{flex: 1, backgroundColor: 'white'}}>
           <Text style={styles.allList}>My Upload</Text>
           <View style={{flex: 0.95}}>
-            <ScrollView>
+            <ScrollView
+            refreshControl={
+              <RefreshControl
+                refreshing={this.state.refresh}
+                onRefresh={() => this.refreshList(this.state.refresh)}
+              />
+            }
+            >
               {this.state.myMusic.length === 0 ? (
-                <Text style={styles.nonMusic}>Oop : U don't have upload</Text>
+                <Text style={styles.nonMusic}>Oop :( don't have upload</Text>
               ) : (
                 this.state.myMusic.map((music, index) => (
                   <TouchableOpacity
@@ -239,6 +249,17 @@ const styles = StyleSheet.create({
     top: 14,
     left: 14,
   },
+  btnDelete: {
+    marginBottom: 10,
+    borderRadius: 5,
+    backgroundColor: '#AD2A26',
+    width: 100,
+  },
+  textBtnDelete: {
+    textAlign: 'center',
+    margin: 10,
+    color: 'white',
+  },
   img: {
     top: 8,
     left: 10,
@@ -259,21 +280,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 22,
-  },
-  modalView: {
-    margin: 20,
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 35,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
   },
   button: {
     borderRadius: 20,
@@ -296,21 +302,22 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   modal: {
-    width: 350,
+    width: '93%',
     backgroundColor: 'white',
     borderRadius: 5,
-    marginTop: 250,
-    marginBottom: 250,
+    marginTop: 130,
+    marginBottom: 130,
     marginLeft: 'auto',
     marginRight: 'auto',
   },
   viewContent: {
-    marginLeft: 'auto',
-    marginRight: 'auto',
+    marginTop: 20,
   },
   imgDetail: {
     height: 200,
     width: 200,
+    marginBottom: 30,
+    borderRadius: 10,
     marginLeft: 'auto',
     marginRight: 'auto',
   },
@@ -323,5 +330,24 @@ const styles = StyleSheet.create({
     marginLeft: 'auto',
     marginRight: 'auto',
     fontSize: 20,
+  },
+  areaInfo: {
+    marginLeft: 30,
+    marginRight: 30,
+    marginBottom: 30,
+    borderBottomWidth: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  fieldInfo: {
+    marginBottom: 10,
+    fontSize: 15,
+    fontWeight: 'bold',
+  },
+  btnClose: {
+    marginBottom: 10,
+    borderRadius: 5,
+    backgroundColor: 'black',
+    width: 100,
   },
 });

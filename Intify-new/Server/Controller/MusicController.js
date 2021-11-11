@@ -39,8 +39,45 @@ class MusicController {
   //GET ListMusic
   showListMusic(req, res, body) {
     Music.find({})
-      .then((music) => res.json({musics: music}))
+      .then((music) => res.json({ musics: music }))
       .catch((error) => next(error));
+  }
+
+  showListArtist(req, res, body) {
+    User.find({ hasUpload: true })
+      .then((users) => {
+        const arrArtist = [];
+        users.map((user) => {
+          const artist = {};
+          artist.id = user.id;
+          artist.nameApp = user.nameApp;
+          artist.imgArtist = user.imgArtist;
+          arrArtist.push(artist);
+        });
+        res.json({ artists: arrArtist });
+      })
+      .catch((error) =>
+        res.json({
+          status: 404,
+          descp: error,
+        })
+      );
+  }
+
+  musicsOfArtist(req, res, body) {
+    Music.find({ idUser: req.params.id })
+      .then((music) => {
+        res.json({
+          status: 200,
+          musics: music,
+        });
+      })
+      .catch((error) =>
+        res.json({
+          status: 404,
+          err: error,
+        })
+      );
   }
 
   //POST AddNewMusic
@@ -51,13 +88,21 @@ class MusicController {
           status: 404,
           descp: err,
         });
+      User.updateOne({ _id: user._id }, { hasUpload: true })
+        .then()
+        .catch((error) =>
+          res.json({
+            status: 404,
+            descp: error,
+          })
+        );
       const newMusic = req.body;
       newMusic.idUser = user._id;
       newMusic.img =
-        "http://10.0.2.2:3002/" +
+        "http://192.168.0.18:3002/" +
         req.files.img[0].path.split("\\").splice(1).join("/");
       newMusic.mp3 =
-        "http://10.0.2.2:3002/" +
+        "http://192.168.0.18:3002/" +
         req.files.mp3[0].path.split("\\").splice(1).join("/");
       const music = new Music(newMusic);
       music

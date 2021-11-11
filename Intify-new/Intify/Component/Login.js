@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import LinearGradient from 'react-native-linear-gradient';
+import api from '../api';
 
 export default class LoginView extends Component {
   constructor(props) {
@@ -24,8 +25,7 @@ export default class LoginView extends Component {
 
   async Login(navigation) {
     try {
-      const response = await fetch('http://10.0.2.2:5000/account/checkLogin', {
-        //http://10.0.2.2:5000/account/checkLogin
+      const response = await fetch('http://'+api+':5000/account/checkLogin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -67,7 +67,7 @@ export default class LoginView extends Component {
 
   async Logout() {
     try {
-      const response = await fetch('http://10.0.2.2:5000/logout', {
+      const response = await fetch('http://'+api+':5000/logout', {
         method: 'post',
         headers: {
           'Content-Type': 'application/json',

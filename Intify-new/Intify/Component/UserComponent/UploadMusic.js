@@ -5,26 +5,27 @@ import {
   View,
   TouchableOpacity,
   TextInput,
-  Image,
-  TouchableHighlight,
 } from 'react-native';
+import Modal from 'react-native-modal'
 import DocumentPicker from 'react-native-document-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import refreshToken from '../../refreshToken';
-import fs from 'react-native-fs';
 import StatusModal from './StatusModal';
+import api from '../../api';
 
 const UploadMusic = () => {
   const [imgUpload, setImgUpload] = useState(null);
   const [mp3Upload, setMp3Upload] = useState(null);
   const [nameSong, setNameSong] = useState('');
   const [nameArtist, setNameArtist] = useState('');
-  const [stateUpload, setStateUpload] = useState(false);
+  const [stateUpload, setStateUpload] = useState("");
   const [status, setStatus] = useState(false);
   const [nullField, setNullField] = useState(false);
 
   const uploadSong = async (e) => {
     if (imgUpload != null && mp3Upload != null && nameSong != null && nameArtist!= null) {
+      setStateUpload("Waiting...")
+      setStatus(true)
       const data = new FormData();
       data.append('nameSong', nameSong.nameSong);
       data.append('nameArtist', nameArtist.nameArtist);
@@ -40,7 +41,7 @@ const UploadMusic = () => {
       });
       try {
         const asAccessTk = await AsyncStorage.getItem('@storage_accessToken');
-        await fetch('http://10.0.2.2:3002/add/newSong', {
+        await fetch('http://'+api+':3002/add/newSong', {
           method: 'post',
           headers: {
             Accept: 'application/json',
@@ -49,22 +50,19 @@ const UploadMusic = () => {
           },
           body: data,
         })
-          .then(async response => {
-            setStateUpload(true);
-            setStatus(true)
+          .then(() => {
+            setStateUpload("Upload Successfull")
             e.persist()
             setTimeout(() => setStatus(false)
             , 5000)
           })
           .catch(async () => {
-            console.log('token het han');
             refreshToken();
-            console.log('Dang lay lai token');
             try {
               const asAccessTk = await AsyncStorage.getItem(
                 '@storage_accessToken',
               );
-              await fetch('http://10.0.2.2:3002/add/newSong', {
+              await fetch('http://'+api+':3002/add/newSong', {
                 method: 'post',
                 headers: {
                   Accept: 'application/json',
@@ -73,23 +71,20 @@ const UploadMusic = () => {
                 },
                 body: data,
               }).then(() => {
-                setStateUpload(true);
-                setStatus(true)
+                setStateUpload("Upload Successfull")
                 e.persist()
                 setTimeout(() => setStatus(false)
                 , 3000)
               });
             } catch (error) {
-              setStateUpload(false);
-              setStatus(true)
+              setStateUpload("Upload Failed")
               e.persist()
               setTimeout(() => setStatus(false)
               , 5000)
             }
           });
       } catch (error) {
-        setStateUpload(false);
-              setStatus(true)
+        setStateUpload(false)
               e.persist()
               setTimeout(() => setStatus(false)
               , 5000)
@@ -107,7 +102,11 @@ const UploadMusic = () => {
     try {
       const res = await DocumentPicker.pick({
         type: DocumentPicker.types.images,
-      });
+      })
+      // const link = res[0].uri+'/'+res[0].name
+      // fs.readFile(link, "base64")
+      // .then(link => console.log(link))
+      // .catch(error => console.log(error))
       setImgUpload(res);
     } catch (err) {
       console.log(err);
@@ -126,7 +125,7 @@ const UploadMusic = () => {
   };
   return (
     <View style={styles.mainBody}>
-      {stateUpload ? <StatusModal status={status} stateUpload={stateUpload}/> : <StatusModal status={status} stateUpload={stateUpload}/>}
+      <StatusModal status={status} stateUpload={stateUpload}/>
       <View style={{justifyContent:'center'}}>
         {nullField ? <Text style={styles.textErr}>* Not null field</Text> : <Text style={styles.textErr}></Text>}
       <View style={styles.inputContainer}>
@@ -219,6 +218,15 @@ const styles = StyleSheet.create({
     color: 'red',
     marginLeft: 'auto',
     marginRight:'auto'
+  },
+  modal: {
+    width: 350,
+    backgroundColor: 'white',
+    borderRadius: 5,
+    marginTop: 250,
+    marginBottom: 250,
+    marginLeft: 'auto',
+    marginRight: 'auto',
   }
 });
 

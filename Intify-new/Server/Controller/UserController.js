@@ -53,6 +53,7 @@ class UserName {
           user: {
             username: user.username,
             nameApp: user.nameApp,
+            imgArtist: user.imgArtist,
             dayCreate: user.createdAt,
           },
         });
@@ -93,7 +94,24 @@ class UserName {
     });
   }
 
-  newImgArtist(req, res, next) {}
+  newImgArtist(req, res, next) {
+    User.findOne({username: req.user.username})
+    .then(user => {
+      User.updateOne({_id: user._id},{imgArtist: "http://192.168.0.18:3002/" + req.file.path.split("\\").splice(1).join("/")})
+      .then(
+        res.json({
+          status: 200,
+          descp: "add image succes",
+        })
+      )
+      .catch((error) =>
+        res.json({
+          status: 404,
+          descp: error,
+        })
+      )
+  })
+  }
 }
 
 module.exports = new UserName();

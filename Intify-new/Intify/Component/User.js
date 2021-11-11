@@ -16,7 +16,7 @@ export default class User extends Component {
           options={{
             headerShown: false,
             title: "User",
-            tabBarIcon: () => <FontAwesomeIcon icon={faUserCircle} size={20} style={{color:"#5A8991"}}/>
+            tabBarIcon: () => <FontAwesomeIcon icon={faUserCircle} size={20} style={{color:"#307ecc"}}/>
           }}
           name="InformationUser"
           component={InfomationUser}
@@ -25,7 +25,7 @@ export default class User extends Component {
           options={{
             headerShown: false,
             title: "Upload",
-            tabBarIcon: () => <FontAwesomeIcon icon={faUpload} size={20} style={{color:"#5A8991"}}/>
+            tabBarIcon: () => <FontAwesomeIcon icon={faUpload} size={20} style={{color:"#307ecc"}}/>
           }}
           name="UploadMusic"
           component={UploadMusic}
@@ -34,7 +34,7 @@ export default class User extends Component {
           options={{
             headerShown: false,
             title: "My List",
-            tabBarIcon: () => <FontAwesomeIcon icon={faList} size={20} style={{color:"#5A8991"}}/>
+            tabBarIcon: () => <FontAwesomeIcon icon={faList} size={20} style={{color:"#307ecc"}}/>
           }}
           name="MyList"
           component={MyUpload}

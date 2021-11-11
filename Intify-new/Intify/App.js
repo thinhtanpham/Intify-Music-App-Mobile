@@ -4,6 +4,7 @@ import ListMusics from './Component/ListMusics';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import FullMusic from './Component/FullMusic';
+import ListMusicsArtist from './Component/ListMusicsArtist'
 import {FontAwesomeIcon} from '@fortawesome/react-native-fontawesome';
 import {faUserCircle} from '@fortawesome/free-solid-svg-icons';
 import LoginView from './Component/Login';
@@ -12,12 +13,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import User from './Component/User';
 import {Provider as StoreProvider} from 'react-redux';
 import rootStore from './Redux/store';
-import SpainScreen from './Component/SpainScreen';
 import Context from './Component/Context'
+
 const Stack = createNativeStackNavigator();
 
 
-function App(props) {
+function App() {
   const [isPlaying, setPlaying] = useState({});
   return (
     <StoreProvider store={rootStore}>
@@ -30,8 +31,7 @@ function App(props) {
             }
           }}>
           <StatusBar hidden={true} />
-          <Stack.Navigator initialRouteName="SpainScreen">
-            <Stack.Screen name="SpainScreen" component={SpainScreen} />
+          <Stack.Navigator initialRouteName="ListMusics">
             <Stack.Screen
               name="ListMusics"
               component={ListMusics}
@@ -54,7 +54,7 @@ function App(props) {
                       }
                     }}
                     style={styles.icon}
-                    size={15}
+                    size={25}
                   />
                 ),
                 headerStyle: {
@@ -68,6 +68,7 @@ function App(props) {
               options={({navigation}) => ({
                 headerBackVisible: true,
                 headerTitle: "",
+                headerTintColor: "white",
                 headerRight: () => (
                   <FontAwesomeIcon
                     icon={faUserCircle}
@@ -84,7 +85,7 @@ function App(props) {
                       }
                     }}
                     style={styles.icon}
-                    size={15}
+                    size={25}
                   />
                 ),
                 headerStyle: {
@@ -101,6 +102,9 @@ function App(props) {
             }}
             />
             <Stack.Screen name="User" component={User} />
+            <Stack.Screen name="ListMusicsArtist" component={ListMusicsArtist}
+            options={{headerStyle: {backgroundColor: '#243039'}, headerTitle: "", headerTintColor: "white"}}
+            />
           </Stack.Navigator>
         </Context.Provider>
       </NavigationContainer>
@@ -118,6 +122,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#587788',
   },
   icon: {
-    color: '#C4C4C4',
+    color: 'white',
   },
 });

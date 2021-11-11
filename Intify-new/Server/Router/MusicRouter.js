@@ -30,8 +30,10 @@ const upload = multer({ storage: storage });
 const newSingUpload = upload.fields([{ name: "img" }, { name: "mp3" }]);
 
 router.get("/", MusicController.showListMusic);
+router.get("/artists", MusicController.showListArtist);
+router.get("/musics/:id", MusicController.musicsOfArtist);
 router.post("/add/newSong",authenticateToken, newSingUpload, MusicController.addNewMusic);
-router.put("/editMusic/:_id",authenticateToken, MusicController.editMusic)
+// router.put("/editMusic/:_id",authenticateToken, MusicController.editMusic)
 router.delete("/delete/:id",MusicController.deleteMusic)
 
 
