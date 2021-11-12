@@ -39,13 +39,13 @@ export default class InfomationUser extends Component {
                 });
         })
         .catch(async error => {
-            refreshToken();
+            await refreshToken();
             try {
-              asAccessTk = await AsyncStorage.getItem('@storage_accessToken');
+              const newAssTk = await AsyncStorage.getItem('@storage_accessToken');
               await fetch('http://' + api + ':3002/account/', {
                 method: 'get',
                 headers: {
-                  Authorization: 'Bearer ' + asAccessTk,
+                  Authorization: 'Bearer ' + newAssTk,
                 },
               }).then(async response => {
                 const json = await response.json();

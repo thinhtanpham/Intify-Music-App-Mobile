@@ -55,6 +55,12 @@ export default class LoginView extends Component {
             '@storage_refreshToken',
             json.message.refreshToken,
           );
+          console.log("ass: " +await AsyncStorage.getItem(
+            '@storage_accessToken'
+          ))
+          console.log("ref: " +await AsyncStorage.getItem(
+            '@storage_refreshToken'
+          ))
           navigation.replace('User');
         } catch (error) {
           console.log(error);
@@ -62,24 +68,6 @@ export default class LoginView extends Component {
       }
     } catch (error) {
       console.error(error);
-    }
-  }
-
-  async Logout() {
-    try {
-      const response = await fetch('http://'+api+':5000/logout', {
-        method: 'post',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          token: await AsyncStorage.getItem('@storage_refreshToken'),
-        }),
-      });
-      await AsyncStorage.removeItem('@storage_refreshToken');
-      await AsyncStorage.removeItem('@storage_accessToken');
-    } catch (error) {
-      console.log(error);
     }
   }
 

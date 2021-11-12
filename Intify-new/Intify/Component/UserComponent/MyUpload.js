@@ -44,11 +44,11 @@ export default class MyList extends Component {
           if (!response.ok) {
             refreshToken();
             try {
-              asAccessTk = await AsyncStorage.getItem('@storage_accessToken');
+              const newAssTk = await AsyncStorage.getItem('@storage_accessToken');
               await fetch('http://'+api+':3002/account/mylist', {
                 method: 'get',
                 headers: {
-                  Authorization: 'Bearer ' + asAccessTk,
+                  Authorization: 'Bearer ' + newAssTk,
                 },
               }).then(async response => {
                 const json = await response.json();
@@ -175,9 +175,9 @@ export default class MyList extends Component {
             }
             >
               {this.state.myMusic.length === 0 ? (
-                <Text style={styles.nonMusic}>Oop :( don't have upload</Text>
-              ) : (
-                this.state.myMusic.map((music, index) => (
+                <Text style={styles.nonMusic}>Oop : don't have upload</Text>
+              ): (
+                this.state.myMusic.map((music, index) => 
                   <TouchableOpacity
                     key={index}
                     onLongPress={() => this.renderSmallMusic(music)}
@@ -198,7 +198,7 @@ export default class MyList extends Component {
                       </View>
                     </View>
                   </TouchableOpacity>
-                ))
+                )
               )}
             </ScrollView>
           </View>

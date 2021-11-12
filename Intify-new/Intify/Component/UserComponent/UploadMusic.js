@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   TextInput,
 } from 'react-native';
-import Modal from 'react-native-modal'
+import Modal from 'react-native-modal';
 import DocumentPicker from 'react-native-document-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import refreshToken from '../../refreshToken';
@@ -18,14 +18,19 @@ const UploadMusic = () => {
   const [mp3Upload, setMp3Upload] = useState(null);
   const [nameSong, setNameSong] = useState('');
   const [nameArtist, setNameArtist] = useState('');
-  const [stateUpload, setStateUpload] = useState("");
+  const [stateUpload, setStateUpload] = useState('');
   const [status, setStatus] = useState(false);
   const [nullField, setNullField] = useState(false);
 
-  const uploadSong = async (e) => {
-    if (imgUpload != null && mp3Upload != null && nameSong != null && nameArtist!= null) {
-      setStateUpload("Waiting...")
-      setStatus(true)
+  const uploadSong = async e => {
+    if (
+      imgUpload != null &&
+      mp3Upload != null &&
+      nameSong.nameSong.length !== 0 && 
+      nameArtist.nameArtist.length !== 0
+    ) {
+      setStateUpload('Waiting...');
+      setStatus(true);
       const data = new FormData();
       data.append('nameSong', nameSong.nameSong);
       data.append('nameArtist', nameArtist.nameArtist);
@@ -41,74 +46,72 @@ const UploadMusic = () => {
       });
       try {
         const asAccessTk = await AsyncStorage.getItem('@storage_accessToken');
-        await fetch('http://'+api+':3002/add/newSong', {
+        await fetch('http://' + api + ':3002/add/newSong', {
           method: 'post',
           headers: {
             Accept: 'application/json',
             type: 'formData',
-            authorization: 'Bearer '+ asAccessTk,
+            authorization: 'Bearer ' + asAccessTk,
           },
           body: data,
         })
           .then(async response => {
-            const resJs = await response.json()
-            if(resJs.status === 200){
-            setStateUpload("Upload Successfull")
-            e.persist()
-            setTimeout(() => setStatus(false)
-            , 3000)
+            const resJs = await response.json();
+            if (resJs.status === 200) {
+              setStateUpload('Upload Successfull');
+              e.persist();
+              setTimeout(() => setStatus(false), 3000);
             }
           })
-          .catch(async (error) => {
+          .catch(async error => {
             refreshToken();
             try {
               const asAccessTk = await AsyncStorage.getItem(
                 '@storage_accessToken',
               );
-              await fetch('http://'+api+':3002/add/newSong', {
+              await fetch('http://' + api + ':3002/add/newSong', {
                 method: 'post',
                 headers: {
                   Accept: 'application/json',
                   type: 'formData',
-                  authorization: 'Bearer '+ asAccessTk,
+                  authorization: 'Bearer ' + asAccessTk,
                 },
                 body: data,
-              }).then(async response  => {
-                const resJs = await response.json()
-                if(resJs.status === 200){
-                setStateUpload("Upload Successfull")
-                e.persist()
-                setTimeout(() => setStatus(false)
-                , 3000)
-                }
-              }).catch(error => {
-                if(error){
-                setStateUpload("Upload Failed")
-                e.persist()
-                setTimeout(() => setStatus(false)
-                , 3000)}
               })
+                .then(async response => {
+                  const resJs = await response.json();
+                  if (resJs.status === 200) {
+                    setStateUpload('Upload Successfull');
+                    e.persist();
+                    setTimeout(() => setStatus(false), 3000);
+                  }
+                })
+                .catch(error => {
+                  if (error) {
+                    setStateUpload('Upload Failed');
+                    e.persist();
+                    setTimeout(() => setStatus(false), 3000);
+                  }
+                });
             } catch (error) {
-              if(error){
-              setStateUpload("Upload Failed")
-              e.persist()
-              setTimeout(() => setStatus(false)
-              , 3000)
-            }}
+              if (error) {
+                setStateUpload('Upload Failed');
+                e.persist();
+                setTimeout(() => setStatus(false), 3000);
+              }
+            }
           });
       } catch (error) {
-        if(error){
-        setStateUpload(false)
-              e.persist()
-              setTimeout(() => setStatus(false)
-              , 3000)
-      }}
-    }
-    else{
-      setNullField(true)
-      e.persist()
-      setTimeout(() => setNullField(false)
-      , 5000)
+        if (error) {
+          setStateUpload(false);
+          e.persist();
+          setTimeout(() => setStatus(false), 3000);
+        }
+      }
+    } else {
+      setNullField(true);
+      e.persist();
+      setTimeout(() => setNullField(false), 5000);
     }
   };
 
@@ -116,8 +119,8 @@ const UploadMusic = () => {
     try {
       const res = await DocumentPicker.pick({
         type: DocumentPicker.types.images,
-      })
-      setImgUpload(res); //setState 
+      });
+      setImgUpload(res); //setState
     } catch (err) {
       console.log(err);
     }
@@ -128,51 +131,55 @@ const UploadMusic = () => {
       const res = await DocumentPicker.pick({
         type: DocumentPicker.types.audio,
       });
-      setMp3Upload(res); //setState 
+      setMp3Upload(res); //setState
     } catch (err) {
       console.log(err);
     }
   };
   return (
     <View style={styles.mainBody}>
-      <StatusModal status={status} stateUpload={stateUpload}/>
-      <View style={{justifyContent:'center'}}>
-        {nullField ? <Text style={styles.textErr}>* Not null field</Text> : <Text style={styles.textErr}></Text>}
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.inputs}
-          placeholder="name-song"
-          underlineColorAndroid="transparent"
-          onChangeText={nameSong => setNameSong({nameSong})}
-        />
+      <StatusModal status={status} stateUpload={stateUpload} />
+      <View style={{justifyContent: 'center'}}>
+        {nullField ? (
+          <Text style={styles.textErr}>* Not null field</Text>
+        ) : (
+          <Text style={styles.textErr}></Text>
+        )}
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.inputs}
+            placeholder="name-song"
+            underlineColorAndroid="transparent"
+            onChangeText={nameSong => setNameSong({nameSong})}
+          />
+        </View>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.inputs}
+            placeholder="name-artist"
+            underlineColorAndroid="transparent"
+            onChangeText={nameArtist => setNameArtist({nameArtist})}
+          />
+        </View>
+        <TouchableOpacity
+          style={styles.buttonStyle}
+          activeOpacity={0.5}
+          onPress={selectImage}>
+          <Text style={styles.buttonTextStyle}>Select Image</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.buttonStyle}
+          activeOpacity={0.5}
+          onPress={selectMp3}>
+          <Text style={styles.buttonTextStyle}>Select File</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.buttonStyle}
+          activeOpacity={0.5}
+          onPress={uploadSong}>
+          <Text style={styles.buttonTextStyle}>Upload File</Text>
+        </TouchableOpacity>
       </View>
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.inputs}
-          placeholder="name-artist"
-          underlineColorAndroid="transparent"
-          onChangeText={nameArtist => setNameArtist({nameArtist})}
-        />
-      </View>
-      <TouchableOpacity
-        style={styles.buttonStyle}
-        activeOpacity={0.5}
-        onPress={selectImage}>
-        <Text style={styles.buttonTextStyle}>Select Image</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.buttonStyle}
-        activeOpacity={0.5}
-        onPress={selectMp3}>
-        <Text style={styles.buttonTextStyle}>Select File</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.buttonStyle}
-        activeOpacity={0.5}
-        onPress={uploadSong}>
-        <Text style={styles.buttonTextStyle}>Upload File</Text>
-      </TouchableOpacity>
-    </View>
     </View>
   );
 };
@@ -215,7 +222,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     flexDirection: 'row',
     marginRight: 'auto',
-    marginLeft: 'auto'
+    marginLeft: 'auto',
   },
   inputs: {
     height: 45,
@@ -227,7 +234,7 @@ const styles = StyleSheet.create({
     height: 20,
     color: 'red',
     marginLeft: 'auto',
-    marginRight:'auto'
+    marginRight: 'auto',
   },
   modal: {
     width: 350,
@@ -237,7 +244,7 @@ const styles = StyleSheet.create({
     marginBottom: 250,
     marginLeft: 'auto',
     marginRight: 'auto',
-  }
+  },
 });
 
 export default UploadMusic;
