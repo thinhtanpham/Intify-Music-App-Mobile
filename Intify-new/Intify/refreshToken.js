@@ -1,15 +1,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import api from './api'
 const refreshToken = async () => {
   try {
     const asRefTk = await AsyncStorage.getItem('@storage_refreshToken')
-    await fetch('http://10.0.2.2:5000/refreshToken', {
+    await fetch('http://'+api+':5000/refreshToken', {
     method: 'post',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      token: asRefTk,
+     token: asRefTk,
     }),
   })
     .then(async response => {
@@ -21,7 +21,7 @@ const refreshToken = async () => {
         console.log(error)
       }
     })
-    .catch(error => console.log(error));
+  .catch(error => console.log(error))
   } catch (error) {
     console.log(error)
   }

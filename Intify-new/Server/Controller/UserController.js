@@ -24,13 +24,13 @@ class UserName {
             bcrypt.hash(newUser.password, salt, (err, hash) => {
               newUser.password = hash;
               newUser.save().then(() => {
-                res
-                  .json({
+                res.json({
                     status: 200,
                     descp: "create success",
                   })
-                  .catch((error) => next(error));
-              });
+                  
+              })
+              .catch((error) => next(error))
             })
           );
         }

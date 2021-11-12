@@ -28,13 +28,17 @@ export default class InfomationUser extends Component {
     try {
       const asAccessTk = await AsyncStorage.getItem('@storage_accessToken');
       await fetch('http://' + api + ':3002/account/', {
-        //http://10.0.2.2:3002/account/
         headers: {
           Authorization: 'Bearer ' + asAccessTk,
         },
       })
         .then(async response => {
-          if (!response.ok) {
+          const json = await response.json();
+                this.setState({
+                  user: json.user,
+                });
+        })
+        .catch(async error => {
             refreshToken();
             try {
               asAccessTk = await AsyncStorage.getItem('@storage_accessToken');
@@ -52,18 +56,12 @@ export default class InfomationUser extends Component {
             } catch (error) {
               console.log(error);
             }
-          } else {
-            const json = await response.json();
-            this.setState({
-              user: json.user,
-            });
-          }
-        })
-        .catch(error => console.log(error));
+          });
     } catch (error) {
       console.log(error);
     }
   }
+  
   async componentDidMount() {
     this.callApiInfo();
   }
@@ -91,7 +89,6 @@ export default class InfomationUser extends Component {
           body: data,
         })
           .then(async response => {
-            console.log(await response.json());
             if (!response.ok) {
               refreshToken();
               try {
@@ -106,7 +103,7 @@ export default class InfomationUser extends Component {
                     Authorization: 'Bearer ' + asAccessTk,
                   },
                   body: data,
-                }).then(async response => console.log(await response.json()));
+                }).then();
               } catch (err) {
                 console.log(err);
               }
@@ -205,7 +202,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#307ecc',
     borderWidth: 0,
     color: '#FFFFFF',
-    height: 40,
+    height: 45,
     alignItems: 'center',
     borderRadius: 30,
     marginLeft: 35,

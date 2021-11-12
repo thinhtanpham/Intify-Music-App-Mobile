@@ -46,17 +46,20 @@ const UploadMusic = () => {
           headers: {
             Accept: 'application/json',
             type: 'formData',
-            authorization: 'Bearer ' + asAccessTk,
+            authorization: 'Bearer '+ asAccessTk,
           },
           body: data,
         })
-          .then(() => {
+          .then(async response => {
+            const resJs = await response.json()
+            if(resJs.status === 200){
             setStateUpload("Upload Successfull")
             e.persist()
             setTimeout(() => setStatus(false)
-            , 5000)
+            , 3000)
+            }
           })
-          .catch(async () => {
+          .catch(async (error) => {
             refreshToken();
             try {
               const asAccessTk = await AsyncStorage.getItem(
@@ -67,28 +70,39 @@ const UploadMusic = () => {
                 headers: {
                   Accept: 'application/json',
                   type: 'formData',
-                  authorization: 'Bearer ' + asAccessTk,
+                  authorization: 'Bearer '+ asAccessTk,
                 },
                 body: data,
-              }).then(() => {
+              }).then(async response  => {
+                const resJs = await response.json()
+                if(resJs.status === 200){
                 setStateUpload("Upload Successfull")
                 e.persist()
                 setTimeout(() => setStatus(false)
                 , 3000)
-              });
+                }
+              }).catch(error => {
+                if(error){
+                setStateUpload("Upload Failed")
+                e.persist()
+                setTimeout(() => setStatus(false)
+                , 3000)}
+              })
             } catch (error) {
+              if(error){
               setStateUpload("Upload Failed")
               e.persist()
               setTimeout(() => setStatus(false)
-              , 5000)
-            }
+              , 3000)
+            }}
           });
       } catch (error) {
+        if(error){
         setStateUpload(false)
               e.persist()
               setTimeout(() => setStatus(false)
-              , 5000)
-      }
+              , 3000)
+      }}
     }
     else{
       setNullField(true)
@@ -103,11 +117,7 @@ const UploadMusic = () => {
       const res = await DocumentPicker.pick({
         type: DocumentPicker.types.images,
       })
-      // const link = res[0].uri+'/'+res[0].name
-      // fs.readFile(link, "base64")
-      // .then(link => console.log(link))
-      // .catch(error => console.log(error))
-      setImgUpload(res);
+      setImgUpload(res); //setState 
     } catch (err) {
       console.log(err);
     }
@@ -118,7 +128,7 @@ const UploadMusic = () => {
       const res = await DocumentPicker.pick({
         type: DocumentPicker.types.audio,
       });
-      setMp3Upload(res);
+      setMp3Upload(res); //setState 
     } catch (err) {
       console.log(err);
     }
